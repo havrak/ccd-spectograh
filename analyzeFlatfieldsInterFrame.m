@@ -1,6 +1,5 @@
 function gainResults = analyzeFlatfieldsInterFrame(folder, zeroResults, darkResults)
 files = dir(fullfile(folder, '*.fit'));
-[~, tmpMetadata, ~] = scripts.getMetadata(folder, files(1).name);
 
 % stratified sampling paramters
 numBins = 50;
