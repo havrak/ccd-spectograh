@@ -1,4 +1,4 @@
-% calculate grating positions to cover whole range from 4000 A to 8000 A with given overlap
+% Calculate grating positions to cover whole range from 4000 A to 8000 A with given overlap
 overlap = 20;
 range1st = [5100, 8000];
 range2nd = [4000, 5100];
@@ -41,9 +41,11 @@ avgWidth = mean(widths);
 modelInc = polyfit(centers, incVals, 1);
 
 % We use the raw calibration data to map motor steps to physical degrees
-% TODO: therer surely must be the formula listed somewhere, or I could just
-% solve the linear equation system myself to get it, but it doesn't matter for now
+% TODO: there surely must be the formula listed somewhere, or I could just
+% solve the linear equation system myself to get it, but it doesn't matter 
+% for now
 modelAng = polyfit(incVals, degVals, 1);
+
 
 
 fprintf('Avg Window Size: %.0f A\n', avgWidth);
