@@ -1,11 +1,11 @@
 function gainResults = analyzeFlatfieldsInterFrameRobust(folder, zeroResults, darkResults)
-files = dir(fullfile(folder, '*.fit'));
-[~, tmpMetadata, ~] = scripts.getMetadata(folder, files(1).name);
-
 
 % outlier rejection parameters
 numBins = 50;
 outlierSigma = 2.0;
+
+files = dir(fullfile(folder, '*.fit'));
+rnSquared = zeroResults.globalReadNoise^2;
 
 % ---------------------------------------------------------
 % STAGE 1: GROUPING
@@ -70,7 +70,7 @@ fprintf('Binning %d raw points and rejecting outliers...\n', length(allMeans));
 
 binnedSignal = zeros(numBins, 1);
 binnedVar    = zeros(numBins, 1);
-binnedStd    = zeros(numBins, 1); % For error bars
+binnedStd    = zeros(numBins, 1);
 
 edges = linspace(0, max(allMeans), numBins+1);
 
@@ -106,15 +106,14 @@ yStd  = binnedStd(validBins);
 % STAGE 4: CALCULATE GAIN
 % ---------------------------------------------------------
 % Math: Variance = (1/Gain) * Mean + ReadNoise^2
+fprintf('Fitting Gain Curve to %d spatial points...\n', length(xData));
 
-rnSquared = zeroResults.globalReadNoise^2;
-
-% Fit Line: (y - RN^2) = Slope * x
 Y_fit = yData - rnSquared;
+X_fit = xData;
 
-b = robustfit(xData, Y_fit, 'bisquare', 4.685);
-intercept = b(1);
+b = robustfit(X_fit, Y_fit, 'bisquare', 4.685);
 slope = b(2);
+intercept = b(1);
 
 gainVal = 1 / slope;
 
@@ -138,6 +137,7 @@ xlabel('Mean Signal (ADU)');
 ylabel('Noise (RMS ADU)');
 grid on;
 axis tight;;
+xlim([0 60000]);
 legend('Binned Data', sprintf('Fit (G=%.2f)', gainVal), 'Location', 'NorthWest');
 
 % ---------------------------------------------------------
@@ -147,7 +147,7 @@ gainResults.gain = gainVal;
 gainResults.readNoiseSquared = rnSquared;
 
 fprintf('------------------------------------------------\n');
-fprintf('INTER-FRAME ANALYSIS RESULTS\n');
+fprintf('INTER-FRAME ANALYSIS RESULTS (ROBUST)\n');
 fprintf('------------------------------------------------\n');
 fprintf('Gain Estimated:        %.4f e-/ADU\n', gainVal);
 fprintf('Fixed Intercept (RN^2): %.2f ADU^2\n', rnSquared);

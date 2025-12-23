@@ -1,70 +1,60 @@
-function gainResults = analyzeFlatfieldsInterFrame(folder, zeroResults, darkResults)
-files = dir(fullfile(folder, '*.fit'));
-[~, tmpMetadata, ~] = scripts.getMetadata(folder, files(1).name);
+function gainResults = analyzeFlatfieldsSpatial(folder, zeroResults, darkResults)
+
+% binning paramters
+binY = 5;
 
 % stratified sampling paramters
 numBins = 50;
 samplesPerBin = 2000;
 
-% ---------------------------------------------------------
-% STAGE 1: GROUPING
-% ---------------------------------------------------------
-groupSettings = containers.Map('KeyType', 'char', 'ValueType', 'any');
-groupFibre    = containers.Map('KeyType', 'char', 'ValueType', 'any');
-
-for i = 1:numel(files)
-	nameSplit = split(files(i).name, '_');
-	expStr = nameSplit{2};
-	fibStr = nameSplit{3};
-
-	keySet = sprintf('%s_%s', expStr, fibStr);
-	if isKey(groupSettings, keySet)
-		groupSettings(keySet) = [groupSettings(keySet), i];
-	else
-		groupSettings(keySet) = [i];
-	end
-end
+files = dir(fullfile(folder, '*.fit'));
+rnSquared = zeroResults.globalReadNoise^2;
 
 % ---------------------------------------------------------
-% STAGE 2: CALCULATE RAW STATISTICS (Pairwise Difference)
+% STAGE 1: SPATIAL VARIANCE CALCULATION
 % ---------------------------------------------------------
-fprintf('Calculating pixel statistics...\n');
+fprintf('Calculating Spatial Variance (Single Image Method)...\n');
+fprintf('Binning: X=1 Y=%.3f\n', binY);
+fprintf('Analyzing %d files\n', numel(files));
+
 allMeans = [];
 allVars  = [];
+dofFactor = (binY - 1) / (binY - 2); % correction for reduced degrees of freedom
 
-keys = groupSettings.keys;
-for k = 1:length(keys)
-	indices = groupSettings(keys{k});
+for i = 1:numel(files)
+	data = double(fitsread(fullfile(folder, files(i).name)));
+	data = data-zeroResults.masterZero;
 
-	% We need at least 2 images to verify noise
-	if length(indices) < 2
-		fprintf("Discarding entry: %s\n", keys{k});
-		continue;
+	[rows, cols] = size(data);
+
+	% Vectorized Sliding Window Analysis
+	% We process column-by-column for speed
+	for col = 1:cols
+		colData = data(:, col);
+
+		% Truncate to multiple of binY
+		nChunks = floor(rows / binY);
+		if nChunks < 1, continue; end
+
+		% Reshape: Each column of 'chunks' is a spatial group
+		chunks = reshape(colData(1:nChunks*binY), binY, nChunks);
+
+		% Detrend: Remove vertical intensity gradients (light profile)
+		% chunksDetrended = detrend(chunks);
+		% varVal = var(chunksDetrended).*dofFactor; % Noise Level
+
+		% Statistics
+		mu = mean(chunks); % detrend shoudn't affect mu
+		varVal = var(chunks).*dofFactor;
+
+		mask = mu > 0 & mu < 60000;
+		allMeans = [allMeans; mu(valid)'];
+		allVars  = [allVars; varVal(valid)'];
 	end
-
-	% Load Stack
-	stack = [];
-	for j = 1:length(indices)
-		idx = indices(j);
-		data = double(fitsread(fullfile(files(idx).folder, files(idx).name)));
-		data = data - zeroResults.masterZero;
-		stack(:,:,j) = data;
-	end
-
-	% Calculate Pixel Statistics
-	mu = mean(stack, 3);
-	sigma2 = var(stack, 0, 3); % instead of std we use var so that final equation will be linear
-
-	mask = mu > 0 & mu < 60000;
-	validMeans = mu(mask);
-	validVars  = sigma2(mask);
-
-	allMeans = [allMeans; validMeans];
-	allVars  = [allVars; validVars];
 end
 
 % ---------------------------------------------------------
-% STAGE 3: STRATIFIED SAMPLING
+% STAGE 2: STRATIFIED SAMPLING
 % ---------------------------------------------------------
 % Instead of random sampling, we bin the data by intensity and
 % take equal samples from each bin. This forces high-signal regions
@@ -100,9 +90,8 @@ end
 allMeans = finalMeans;
 allVars = finalVars;
 
-
 % ---------------------------------------------------------
-% STAGE 4: CALCULATE GAIN
+% STAGE 3: CALCULATE GAIN
 % ---------------------------------------------------------
 % Math: Variance = (1/Gain) * Mean + ReadNoise^2
 fprintf('Fitting Gain Curve to %d spatial points...\n', length(allMeans));
@@ -117,18 +106,19 @@ intercept = b(1);
 gainVal = 1 / slope;
 
 % ---------------------------------------------------------
-% STAGE 5: VISUALIZATION (THE SQUARE ROOT PLOT)
+% STAGE 4: VISUALIZATION
 % ---------------------------------------------------------
 figure(101); clf;
+
 allNoise = sqrt(allVars);
-scatter(allMeans, allNoise, 1, 'k', 'filled', 'MarkerFaceAlpha', 0.1);
+scatter(allMeans, allNoise, 2, 'k', 'filled', 'MarkerFaceAlpha', 0.05);
 hold on;
 
-xFit = linspace(min(allMeans), max(allMeans), 100);
+xFit = linspace(0, 60000, 100);
 yFit = sqrt( (1/gainVal) * xFit + intercept );
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 
-title(sprintf('Photon Transfer Curve (Noise vs Signal)\nGain = %.3f e-/ADU', gainVal));
+title(sprintf('Photon Transfer Curve (Spatial Method)\nGain = %.3f e-/ADU, bin size: X=1 Y=%.3f', gainVal, binY));
 xlabel('Mean Signal (ADU)');
 ylabel('Noise (RMS ADU)');
 grid on;
@@ -136,17 +126,17 @@ axis tight;
 xlim([0 60000]);
 legend('Measured Data', ['Fit: \sigma = \surd(S / ' sprintf('%.2f', gainVal) ')']);
 
+
 % ---------------------------------------------------------
 % RESULTS
 % ---------------------------------------------------------
 gainResults.gain = gainVal;
-gainResults.shutterOffset = avgOffset;
 gainResults.readNoiseSquared = intercept;
 
 fprintf('------------------------------------------------\n');
-fprintf('INTER-FRAME ANALYSIS RESULTS\n');
+fprintf('SPATIAL ANALYSIS RESULTS\n');
 fprintf('------------------------------------------------\n');
 fprintf('Gain Estimated:        %.4f e-/ADU\n', gainVal);
-fprintf('Fit Intercept (RN^2):  %.2f\n', intercept);
+fprintf('Read Noise (fit):      %.2f ADU\n', sqrt(abs(intercept)));
 fprintf('------------------------------------------------\n');
 end
