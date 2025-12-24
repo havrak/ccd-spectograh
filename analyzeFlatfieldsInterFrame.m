@@ -1,4 +1,4 @@
-function gainResults = analyzeFlatfieldsInterFrame(folder, zeroResults, darkResults)
+function gainResults = analyzeFlatfieldsInterFrame(folder, zeroResults)
 files = dir(fullfile(folder, '*.fit'));
 
 % stratified sampling paramters

@@ -1,4 +1,4 @@
-function gainResults = analyzeFlatfieldsSpatial(folder, zeroResults, darkResults)
+function gainResults = analyzeFlatfieldsSpatial(folder, zeroResults)
 
 % binning paramters
 binY = 5;
@@ -8,7 +8,7 @@ numBins = 50;
 samplesPerBin = 2000;
 
 files = dir(fullfile(folder, '*.fit'));
-rnSquared = zeroResults.globalReadNoise^2;
+rnSquared = zeroResults.globalReadNoise;
 
 % ---------------------------------------------------------
 % STAGE 1: SPATIAL VARIANCE CALCULATION

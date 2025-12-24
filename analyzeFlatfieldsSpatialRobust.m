@@ -12,7 +12,7 @@ numBins = 50;
 samplesPerBin = 1000;
 
 files = dir(fullfile(folder, '*.fit'));
-rnSquared = zeroResults.globalReadNoise^2;
+rnSquared = zeroResults.globalReadNoise;
 
 % ---------------------------------------------------------
 % STAGE 1: RAW SPATIAL VARIANCE

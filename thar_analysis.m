@@ -89,12 +89,12 @@ fprintf('Processing Order %d (%d images)\n', order, length(subset));
 % ---------------------------------------------------------
 if order == 1 % Red
     slopeEst = (8635 - 5565) / (35.78 - 27.88); % ~388 A/deg
-    dispRange = 0.15:0.005:0.80;
-    slopeRange = slopeEst * (0.95:0.01:1.05);
+    dispRange = 0.15:0.01:0.80;
+    slopeRange = slopeEst + (-2:0.1:2);
 else % Blue
     slopeEst = (4874 - 4390) / (38.75 - 36.17); % ~187 A/deg
     dispRange = 0.10:0.001:0.50; % [0.1142578125];
-    slopeRange = slopeEst * (0.95:0.01:1.05);
+    slopeRange = slopeEst + (-2:0.1:2);
 end
 
 % ---------------------------------------------------------
@@ -108,6 +108,7 @@ fprintf('Grid Search: %d Slopes x %d Disps...\n', length(slopeRange), length(dis
 nGrid = length(gridAxis);
 
 for s = slopeRange
+    fprintf("Currently processing slope: %3.4f\n", s);
     for d = dispRange
 
         % --- STACKING STEP ---

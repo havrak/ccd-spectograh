@@ -1,11 +1,11 @@
-function gainResults = analyzeFlatfieldsInterFrameRobust(folder, zeroResults, darkResults)
+function gainResults = analyzeFlatfieldsInterFrameRobust(folder, zeroResults)
 
 % outlier rejection parameters
 numBins = 50;
 outlierSigma = 2.0;
 
 files = dir(fullfile(folder, '*.fit'));
-rnSquared = zeroResults.globalReadNoise^2;
+rnSquared = zeroResults.globalReadNoise;
 
 % ---------------------------------------------------------
 % STAGE 1: GROUPING

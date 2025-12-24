@@ -13,7 +13,7 @@ BIN_SETTINGS.maxADU       = 55000; % Saturation cutoff
 % Sampling Settings (Per Image)
 SAMPLE.numLevels     = 500;  % How many intensity levels to split each image into
 SAMPLE.pointsPerLevel = 10000; % Max points to take per level (20k points max per image)
-rnSquared = zeroResults.readNoise; % Use pre-calculated Read Noise
+rnSquared = zeroResults.globalReadNoise; % Use pre-calculated Read Noise
 
 files = dir(fullfile(folder, '*.fit'));
 if isempty(files)
