@@ -26,46 +26,50 @@ darkCurrentMap_e_s = masterDark_e / exposureTime;
 % Hot Pixel is a permanent sensor defect (High in ALL frames -> High Median)
 meanDark = median(darkCurrentMap_e_s(:));
 stdDarkSpatial = std(darkCurrentMap_e_s(:));
-hotPixelThreshold = meanDark + (10 * stdDarkSpatial);
+hotPixelThreshold = meanDark + (5 * stdDarkSpatial);
 isHotPixel = darkCurrentMap_e_s > hotPixelThreshold;
 numHotPixels = sum(isHotPixel(:));
 
-% Identify Transient Events (Gamma/Beta Rays)
-% Gamma Ray is a transient event (High in ONE frame -> High Std, Low Median)
-maxFrame = max(darksCorrected, [], 3);
+kernel = ones(5, 5);
+neighborCount = conv2(double(isHotPixel), kernel, 'same');
 
+% Mask for isolated pixels: Must be Hot ITSELF (1) and Neighbor Sum must be 1
+isIsolated = isHotPixel & (neighborCount == 1);
+numIsolated = sum(isIsolated(:));
+numClustered = numHotPixels - numIsolated;
+
+% Transient Events (Cosmic Rays)
+maxFrame = max(darksCorrected, [], 3);
 isCosmicRay = (maxFrame - masterDark) > transientThreshold;
 numCosmicRays = sum(isCosmicRay(:));
 
-% Transient events would mess with statistics, we will just sacrifice them
-% and replace their values with median
+% 5. Transient Cleaning
 darksCleaned = darksCorrected;
 for i = 1:numFrames
     thisFrame = darksCorrected(:,:,i);
-
     diffMap = abs(thisFrame - masterDark);
     isTransient = diffMap > transientThreshold;
-
     thisFrame(isTransient) = masterDark(isTransient);
     darksCleaned(:,:,i) = thisFrame;
 end
 
-
-% Noise Analysis
+% 6. Noise Analysis
 observedNoise = std(darksCorrected, 0, 3);
 observedNoiseCleaned = std(darksCleaned, 0, 3);
 
-% Results
+% 7. Pack Results
 darkAnalysis.masterDark = masterDark;
-darkAnalysis.darkCurrentMap = darkCurrentMap_e_s;   % in e-
-darkAnalysis.observedNoiseMap = observedNoise;    % in e-
+darkAnalysis.darkCurrentMap = darkCurrentMap_e_s;
+darkAnalysis.observedNoiseMap = observedNoise;
 darkAnalysis.observedNoiseCleanedMap = observedNoiseCleaned;
-
 darkAnalysis.hotPixelCount = numHotPixels;
+darkAnalysis.hotPixelsIsolated = numIsolated;
+darkAnalysis.hotPixelsClustered = numClustered;
 darkAnalysis.meanDarkCurrent = mean(darkCurrentMap_e_s(:));
 darkAnalysis.meanDarkNoise = mean(observedNoise(:));
 darkAnalysis.meanDarkNoiseCleaned = mean(observedNoiseCleaned(:));
 
+% Console Output
 fprintf('------------------------------------------------\n');
 fprintf('DARK FRAMES ANALYSIS RESULTS (16-bit)\n');
 fprintf('------------------------------------------------\n');
@@ -75,43 +79,100 @@ fprintf('  Exposure Time:     %.1f s\n', exposureTime);
 fprintf('  Gain:              %.2f e-/ADU\n', gain);
 fprintf('------------------------------------------------\n');
 fprintf('Master Dark Current Statistics:\n');
-fprintf('  Mean Dark Noise:   %.7f e- (RMS)\n', stdDarkSpatial);
-fprintf('  Mean Dark Noise:   %.2f ADU (RMS)\n', std(masterDark(:)));
+fprintf('  Master Dark Std:   %.2f ADU (Spatial)\n', std(masterDark(:)));
+fprintf('  Master Dark Mean:   %.2f ADU (Spatial)\n', mean(masterDark(:)));
 fprintf('------------------------------------------------\n');
 fprintf('Sensor Statistics:\n');
-fprintf('  Mean Dark Current: %.4f e-/s/pixel\n', darkAnalysis.meanDarkCurrent);
+fprintf('  Std Dark Current:  %.7f e-/s (Uniformity)\n', stdDarkSpatial);
+fprintf('  Mean Dark Current: %.7f e-/s/pixel\n', darkAnalysis.meanDarkCurrent);
 fprintf('  Mean Dark Noise:   %.2f ADU (RMS)\n', darkAnalysis.meanDarkNoise);
 fprintf('  Mean Dark Noise:   %.2f ADU (RMS - Cleaned)\n', darkAnalysis.meanDarkNoiseCleaned);
 fprintf('------------------------------------------------\n');
 fprintf('Defects & Radiation:\n');
 fprintf('  Static Hot Pixels: %d (%.3f%% of sensor)\n', numHotPixels, (numHotPixels/(rows*cols))*100);
+fprintf('    - Isolated:      %d (%.1f%% of hot pixels)\n', numIsolated, (numIsolated/numHotPixels)*100);
+fprintf('    - Clustered:     %d (Likely sensor etching defects)\n', numClustered);
 fprintf('  Gamma/Cosmic Hits: %d (Transient Events)\n', numCosmicRays);
 fprintf('------------------------------------------------\n\n');
-
+% 7. Plotting & Export
 if plotFlag
-    figure('Name', 'Dark Frame Analysis', 'Color', 'w');
+    % Check/Create Export Directory
+    if ~exist('img', 'dir')
+        mkdir('img');
+    end
 
-    % 1. Master Dark (Cleaned)
-    subplot(1,3,1);
+    % Config
+    figWidth = 1000; 
+    figHeight = 800;
+    mainFontSize = 18;
+
+    % --- FIGURE 1: Master Dark ---
+    f1 = figure('Name', 'Master Dark', 'Color', 'w', 'Units', 'pixels', ...
+        'Position', [100 100 figWidth figHeight]);
+    
     imagesc(darkAnalysis.masterDark);
     colorbar;
-    colormap('gray');
-    title('Master Dark (Gamma Removed)');
-    clim([0 prctile(masterDark(:), 99)]);
+    colormap(gca, 'gray'); 
+    title('Master Dark (Gamma Removed)', 'FontSize', mainFontSize);
+    clim([0 prctile(masterDark(:), 99)]); 
+    set(gca, 'FontSize', mainFontSize);
+    axis image;
 
-    % 2. Dark Current Hist (Log Scale)
-    subplot(1,3,2);
-    histogram(darkAnalysis.darkCurrentMap(:), 100);
-    set(gca, 'YScale', 'log');
-    title('Dark Current Distribution');
-    xlabel('Dark Current (e-/s)'); ylabel('Count (Log)');
+    fprintf('Exporting img/Dark_Master.png...\n');
+    exportgraphics(f1, fullfile('img', 'Dark_Master.png'), 'Resolution', 300);
+
+    % --- FIGURE 2: Dark Current Distribution (Poisson) ---
+    f2 = figure('Name', 'Dark Distribution', 'Color', 'w', 'Units', 'pixels', ...
+        'Position', [150 150 figWidth figHeight]);
+    
+    hold on;
+    data_dark = darkAnalysis.darkCurrentMap(:);
+    
+    histogram(data_dark, 100, 'Normalization', 'pdf', 'EdgeColor', 'none', 'FaceColor', [0 0.4470 0.7410]);
+    
+    % Poisson Model
+    lambda_total = meanDark * exposureTime; 
+    x_rate = linspace(min(data_dark), prctile(data_dark, 99.9), 500);
+    x_counts = round(x_rate * exposureTime);
+    y_prob = poisspdf(x_counts, lambda_total);
+    y_fit = y_prob * exposureTime;
+    
+    plot(x_rate, y_fit, 'r-', 'LineWidth', 3);
+    set(gca, 'YScale', 'log'); 
+    %title(sprintf('Dark Current Distribution\n\\mu=%.7f ADU/s, \sigma=%.7f ADU/s, (Poisson Fit)', meanDark, stdDarkSpatial), ...
+    %    'FontSize', mainFontSize);
+
+    title(sprintf('Dark Current Distribution\n\\mu=%.7f e-/s, \sigma=%.7f e-/s, (Poisson Fit)', meanDark, stdDarkSpatial), ...
+        'FontSize', mainFontSize);
+    xlabel('Dark Current (e-/s)', 'FontSize', mainFontSize); 
+    ylabel('Probability Density (Log)', 'FontSize', mainFontSize);
+    legend({'Observed Data', 'Poisson Model'}, 'FontSize', mainFontSize, 'Location', 'best');
+    set(gca, 'FontSize', mainFontSize);
     grid on;
+    hold off;
 
-    % 3. Hot Pixel Map
-    subplot(1,3,3);
-    imagesc(isHotPixel);
-    colormap(gca, 'gray');
-    title(sprintf('Static Hot Pixels (> %.2f e-/s)', hotPixelThreshold));
-    xlabel('White = Defect');
+    fprintf('Exporting img/Dark_Distribution.png...\n');
+    exportgraphics(f2, fullfile('img', 'Dark_Distribution.png'), 'Resolution', 300);
+
+    % --- FIGURE 3: Hot Pixel Map (Updated with Clusters) ---
+    f3 = figure('Name', 'Hot Pixel Map', 'Color', 'w', 'Units', 'pixels', ...
+        'Position', [200 200 figWidth figHeight]);
+    
+    % Create a visualization map: 0=Normal, 1=Isolated, 2=Clustered
+    vizMap = zeros(rows, cols);
+    vizMap(isHotPixel) = 1;      % Mark all hot
+    vizMap(isIsolated) = 0.5;    % Mark isolated distinct from clustered
+    
+    imagesc(vizMap);
+    % Custom colormap: Black (Normal), Green (Isolated), Red (Clustered)
+    colormap(gca, [0 0 0; 0 1 0; 1 0 0]); 
+    
+    title(sprintf('Hot Pixel Clusters (Red=Clustered, Green=Isolated)'), 'FontSize', mainFontSize);
+    xlabel('Sensor X', 'FontSize', mainFontSize);
+    set(gca, 'FontSize', mainFontSize);
+    axis image;
+
+    fprintf('Exporting img/Dark_HotPixels.png...\n');
+    exportgraphics(f3, fullfile('img', 'Dark_HotPixels.png'), 'Resolution', 300);
 end
 end
