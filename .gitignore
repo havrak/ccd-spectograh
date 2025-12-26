@@ -2,3 +2,4 @@ data/
 excluded/
 doc/_minted
 _minted
+*.asv
