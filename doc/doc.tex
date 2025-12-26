@@ -352,7 +352,7 @@ Verifying if the measured data follow expected distribution is rather difficult.
 Shot noise from dark currents should exhibit Poisson distribution, however as it's variance is quite small -- that is comparable with one for readout noise -- it's difficult to separate both noises.
 While variance of read noise and master zero is known, this noise is still present in darks and cannot be just subtracted.
 
-In order to express dark currents in accurate units $e^{-}s^{-1}$ gain value of $0.6727\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in following chapters, was used.
+In order to express dark currents in accurate units $e^{-}s^{-1}$ gain value of $0.555\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in following chapters, was used.
 Using this gain mean dark current was $0.328\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.3487\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$
 Distribution of dark current overlaid with Poisson distribution curve for calculated $\mu$ and $\sigma$ is showed on picture \ref{img:dark_distribution}.
 
@@ -383,7 +383,7 @@ As the noise is statistically independent it's simply included in the sum, $\ove
 
 This equation is often modified for the purpose of numerical calculation as
 \begin{equation}
-	\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g}.
+	\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}.
 \end{equation}
 This removes unnecessary step of calculating square root.
 
@@ -462,11 +462,72 @@ And even when visualizing binned data it's clear that the trend isn't there \ref
 	\begin{center}
 		\includegraphics[width=0.4\textwidth]{../img/flat_spatial_robust.png}
 	\end{center}
-\caption{Photon Transfer Curve -- Spatial Analysis}
+\caption{Photon Transfer Curve -- Spatial Analysis, Bin Size = 3}
 \label{img:flat_spatial_robust}
 \end{figure}
 
 \subsection{Residual Flatfield Analysis}
+
+Upon mentors suggestion residual analysis method for gain estimation was attempted.
+Instead of calculating variance between real values, be it between two images or from bins, model is first created that is close to free from noise and variance from this model is then calculated.
+Data processing algorithm works in following steps:
+\begin{enumerate}[I]
+	\item First images are grouped based on illumination intensity (That is by different fibre positions).
+	\item Each group is then processed separately.
+		\begin{enumerate}
+			\item Model is created from images in the group. This model is normalized to have a mean value of one.
+			\item For each image model is scaled.
+			\item Residual for each pixel is calculated.
+			\item Mean value is taken as the model value.
+		\end{enumerate}
+	\item Stratified sampling.
+	\item Outlier rejection using MAD.
+	\item Calculate local gain in for each level.
+	\item Fit a $\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}$.
+\end{enumerate}
+
+Main problem of this method is the creation of accurate model, that is free of noise.
+This model is created by calculating a mean value for each pixel over set of images.
+
+One approach was to use largest set of images of the same exposure.
+In the processed dataset this occurst for the 10 second exposition time, for illumination level with the most data.
+Some illumination levels don't have pairs of images at all, so averaging accoss single exposure time cannot be done.
+Regardless when averaging same images we should see reduction of
+\begin{equation}
+	\sigma_N = \frac{\sigma}{\sqrt{N}}
+	\label{eq:}
+\end{equation}
+where $\sigma_N$ is noise deviation after averaging and $N$ is the number of averaged images \cite{Walpolec2002}.
+At 9 frames we have a noise reduction of just 67~\%.
+
+As this model is created for rather low ADU leves (at most around 6000), when scaled up remaining noise causes significant error.
+On image \ref{img:flat_model_10s} is the photon transfer curve when such a model is used.
+It's apparent that the model work really well for low values -- where the points follow the square root dependance rather well, however for larger values model breaks down.
+Models failure can also be demonstrated while on residual histograms (images \ref{img:flat_hist_10s_med} and \ref{img:flat_hist_10s_3rd}), where not only shape of the curve itself is wrong but also mean estimate isn't clearly correct.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/model_10s_photon_transfer_curve.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Residual Analysis, 10~s Exposure Model}
+\label{img:flat_model_10s}
+\end{figure}
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/model_10s_histogram_med.png}
+	\end{center}
+\caption{Residual Histogram at Median, 10~s Exposure Model}
+\label{img:flat_hist_10s_med}
+\end{figure}
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/model_10s_histogram_3qar.png}
+	\end{center}
+\caption{Residual Histogram at 3rd Quantile, 10~s Exposure Model}
+\label{img:flat_hist_10s_3rd}
+\end{figure}
 
 
 

@@ -5,7 +5,7 @@ function gainResults = analyzeFlatfieldsPixelModel(folder, zeroResults, darkResu
 % 3. Calculate residuals (Actual - Model).
 % 4. Analyze Variance of residuals vs Signal to determine Gain.
 
-BIN_SETTINGS.numBins      = 500;   % Bins for the final PTC plot
+BIN_SETTINGS.numBins      = 300;   % Bins for the final PTC plot
 BIN_SETTINGS.minPoints    = 50;    % Min points to trust a final bin
 BIN_SETTINGS.outlierSigma = 2.5;   % Outlier rejection strictness
 BIN_SETTINGS.maxADU       = 55000; % Saturation cutoff
@@ -70,42 +70,44 @@ for f = 1:length(fibKeys)
 
     % --- Step 2a: Find "Reference" Exposure for this Fibre ---
     % We want the exposure time that has the MOST frames to average out noise.
-    % expTimes = [fileData(indices).exposure];
-    % uniqueExps = unique(expTimes);
-    % counts = histcounts(expTimes, [uniqueExps, max(uniqueExps)+1]);
+    expTimes = [fileData(indices).exposure];
+    uniqueExps = unique(expTimes);
+    counts = histcounts(expTimes, [uniqueExps, max(uniqueExps)+1]);
 
-    % [~, bestIdx] = max(counts);
-    % refExpTime = uniqueExps(bestIdx);
+    [~, bestIdx] = max(counts);
+    refExpTime = uniqueExps(bestIdx);
 
     % Find indices of these reference frames
-    % refIndices = indices(expTimes == refExpTime);
+    refIndices = indices(expTimes == refExpTime);
 
-    % fprintf('  Fibre %s: Using %d frames at %.2fs as reference model.\n', ...
-    %    key, length(refIndices), refExpTime);
+    fprintf('  Fibre %s: Using %d frames at %.2fs as reference model.\n', ...
+        key, length(refIndices), refExpTime);
 
-    % --- Step 2b: Create Master Reference Frame ---
-    % refStack = [];
-    % for k = 1:length(refIndices)
-    %     refStack(:,:,k) = loadImg(fileData(refIndices(k)).path);
-    % end
-
-
-    % --- Step 2b: Create Master Reference Frame ---
+    % -- Step 2b: Create Master Reference Frame ---
     refStack = [];
-    for k = 1:length(indices) % use all frames to calculate the mean
-        refStack(:,:,k) = loadImg(fileData(indices(k)).path);
+    for k = 1:length(refIndices)
+        refStack(:,:,k) = loadImg(fileData(refIndices(k)).path);
     end
-    masterModel = mean(refStack, 3);
+
+
+    % --- Step 2b: Create Master Reference Frame ---
+    %refStack = [];
+    %for k = 1:length(indices) % use all frames to calculate the mean
+    %    refStack(:,:,k) = loadImg(fileData(indices(k)).path);
+    %end
+
 
     % Calculate the "Pattern" (normalized model)
     % We normalize by the mean of the master model so scaling factors are intuitive
+    masterModel = double(mean(refStack, 3));
+
     meanRef = mean(masterModel(:));
     normalizedPattern = masterModel ./ meanRef;
 
     % --- Step 2c: Calculate Residuals for ALL frames in this group ---
     for k = 1:length(indices)
         idx = indices(k);
-        img = loadImg(fileData(idx).path);
+        img = double(loadImg(fileData(idx).path));
 
         % 1. Determine Scale Factor based on MEAN INTENSITY
         currentMean = mean(img(:));
@@ -146,17 +148,18 @@ end
 % ---------------------------------------------------------
 % STAGE 3: BINNING & STATISTICS (PTC GENERATION)
 % ---------------------------------------------------------
-fprintf('Binning data for analysis, datapoints: %f ...\n', numel(allSignals));
+fprintf('Analyzing %d points...\n', numel(allSignals));
 
 [allSignals, sortIdx] = sort(allSignals);
 allResiduals = allResiduals(sortIdx);
 
 binEdges = linspace(min(allSignals), max(allSignals), BIN_SETTINGS.numBins+1);
 binMeans = [];
-binVars  = [];
-binStds  = [];
+binVars  = []; % This will hold Mean Squared Residuals
+binStds  = []; % RMS of Residuals
 
 for b = 1:BIN_SETTINGS.numBins
+    % 1. Isolate data in this signal range
     inBin = allSignals >= binEdges(b) & allSignals < binEdges(b+1);
     sigs = allSignals(inBin);
     resids = allResiduals(inBin);
@@ -165,7 +168,8 @@ for b = 1:BIN_SETTINGS.numBins
         continue;
     end
 
-    % Robust Outlier Rejection
+    % 2. Robust Outlier Rejection (MAD)
+    % We filter based on deviation from the bin median
     medRes = median(resids);
     madRes = median(abs(resids - medRes));
     sigmaEst = 1.4826 * madRes;
@@ -174,11 +178,22 @@ for b = 1:BIN_SETTINGS.numBins
     cleanResids = resids(validMask);
     cleanSigs   = sigs(validMask);
 
-    if isempty(cleanResids), continue; end
+    %binMeans = [binMeans; cleanSigs];
+    %binVars  = [binVars; cleanResids.^2];
+    %binStds  = [binStds; cleanResids];
+
+    %if isempty(cleanResids), continue; end
+
+    % 3. Calculate "Real" Deviance Statistics
+    % We do NOT use var() or std() because they subtract the local mean.
+    % We assume the Model is true, so residual IS the noise.
+
+    meanSqResid = mean(cleanResids.^2); % Pure Variance (E[x^2])
+    rmsResid    = sqrt(meanSqResid);    % Pure Noise (RMS)
 
     binMeans = [binMeans; mean(cleanSigs)];
-    binVars  = [binVars; var(cleanResids)];
-    binStds  = [binStds; std(cleanResids)];
+    binVars  = [binVars; meanSqResid];
+    binStds  = [binStds; rmsResid];
 end
 
 % ---------------------------------------------------------
@@ -216,7 +231,7 @@ if INTEROLATION_SETTING.statisticsToolbox == 1
         rnSE    = se(2);  % Standard Error of RN
         p_opt = [gainVal, fitRN];
     else
-        modelFun = @(p, x) x ./ p(1) + rn0/p(1)^2;
+        modelFun = @(p, x) x ./ p(1) + rn0^2/p(1)^2;
         [beta, R, J, CovB, MSE] = nlinfit(X, Y, modelFun, [g0]);
         ci = nlparci(beta, R, 'Jacobian', J);
 
@@ -291,7 +306,30 @@ avgShutterOffset = median(shutterOffsets);
 % ---------------------------------------------------------
 % STAGE 6: VISUALIZATION
 % ---------------------------------------------------------
-figure(200); clf;
+
+figWidth = 1000;
+figHeight = 800;
+mainFontSize = 18; % Large font to remain readable when image is resized small
+
+
+
+
+f1 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
+scatter(binMeans, binStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
+hold on;
+xFit = linspace(0, max(binMeans), 200);
+yFit = sqrt(modelFun(p_opt, xFit));
+plot(xFit, yFit, 'r-', 'LineWidth', 2);
+plot(xFit, sqrt(xFit ./ gainVal), 'b:', 'LineWidth', 1.5);
+xlabel('Signal (ADU)'); ylabel('Noise \sigma (ADU)');
+%title('Photon Transfer Curve');
+set(gca, 'FontSize', mainFontSize);
+grid on;
+legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'best');
+exportgraphics(f1, fullfile('img', 'model_photon_transfer_curve.png'), 'Resolution', 300);
+
+figure(); clf;
 t = tiledlayout(3, 2, 'TileSpacing', 'compact');
 title(t, sprintf('Gain Analysis (Residual Method) | Est. Gain: %.3f e-/ADU', gainVal));
 
@@ -304,8 +342,8 @@ yFit = sqrt(modelFun(p_opt, xFit));
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 plot(xFit, sqrt(xFit ./ gainVal), 'b:', 'LineWidth', 1.5);
 xlabel('Signal (ADU)'); ylabel('Noise \sigma (ADU)');
-title('Photon Transfer Curve (std)');
-grid on; legend('Data', 'Full Fit', 'Shot Noise Only', 'Location', 'best');
+title('Photon Transfer Curve');
+grid on; legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'best');
 
 
 % --- PLOT 1: Photon Transfer Curve ---
@@ -366,11 +404,51 @@ title(sprintf('Linearity Check (Offset \\approx %.3fs)', avgShutterOffset));
 grid on;
 
 % --- PLOT 4: Residual Distribution (Histogram) ---
-nexttile;
+
+% fprintf("All residuals: ");
+% disp(sliceResids);
+
+f2 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
+
 medSignal = median(allSignals);
 
 disp(medSignal);
-sliceWindow = 6000; % ADU width
+sliceWindow = 2000; % ADU width
+sliceMask = abs(allSignals - medSignal) < sliceWindow;
+sliceResids = allResiduals(sliceMask);
+
+
+h = histogram(sliceResids, 300, 'Normalization', 'pdf');
+hold on;
+
+% Overlay Theoretical Gaussian
+% Width should be sqrt(Signal/Gain + RN^2)
+theoreticalSigma = sqrt( (medSignal / gainVal) + rnSquared );
+xH = linspace(min(sliceResids), max(sliceResids), 100);
+disp(size(xH));
+yH = normpdf(xH, 0, theoreticalSigma);
+
+plot(xH, yH, 'r-', 'LineWidth', 2);
+xlabel('Residual (ADU)');
+ylabel('Probability Density');
+title(sprintf('@ ~%d ADU (Exp \\sigma=%.1f)', round(medSignal), theoreticalSigma));
+legend('Measured Residuals', 'Poisson Model');
+grid on;
+xlim([-4*theoreticalSigma, 4*theoreticalSigma]);
+
+set(gca, 'FontSize', mainFontSize);
+exportgraphics(f2, fullfile('img', 'model_histogram_med.png'), 'Resolution', 300);
+
+
+f3 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
+
+q = quantile(allSignals, [0.25 0.5 0.75]); % 1st, 2nd (median), 3rd quartiles
+medSignal = q(3);
+
+disp(medSignal);
+sliceWindow = 2000; % ADU width
 sliceMask = abs(allSignals - medSignal) < sliceWindow;
 sliceResids = allResiduals(sliceMask);
 
@@ -390,10 +468,15 @@ yH = normpdf(xH, 0, theoreticalSigma);
 plot(xH, yH, 'r-', 'LineWidth', 2);
 xlabel('Residual (ADU)');
 ylabel('Probability Density');
-title(sprintf('Resid. Dist. @ ~%d ADU (Exp \\sigma=%.1f)', round(medSignal), theoreticalSigma));
+title(sprintf('@ ~%d ADU (Exp \\sigma=%.1f)', round(medSignal), theoreticalSigma));
 legend('Measured Residuals', 'Poisson Model');
 grid on;
 xlim([-4*theoreticalSigma, 4*theoreticalSigma]);
+
+
+set(gca, 'FontSize', mainFontSize);
+exportgraphics(f3, fullfile('img', 'model_histogram_3qar.png'), 'Resolution', 300);
+
 
 
 % ---------------------------------------------------------
