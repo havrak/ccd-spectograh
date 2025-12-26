@@ -63,6 +63,20 @@ For this project, the spectroscopic observations were carried out using the coud
 
 This telescope is equipped with accurate guiding and tracking systems, which are essential for spectroscopic observations performed with narrow entrance slits or optical fibers. The systems implemented in the Ondřejov 2-m telescope ensure stable target positioning during long exposures. Guiding errors can directly lead to reduced signal-to-noise ratio or artificial broadening of spectral features, directly  affecting the quality of the recorded spectra, as it is said in \cite{Moore2014}.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im1.jpg}
+\caption{Ondřejov 2-m Telescope}
+\label{fig:im1}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im2.jpg}
+\caption{Dome of the telescope}
+\label{fig:im2}
+\end{figure}
+
 %------------------------------------------------------------
 
 \section{SPECTROGRAPH OVERVIEW AND OPTICAL LAYOUT}
@@ -73,6 +87,20 @@ To continue with, the working mechanism of the spectrograph begins with the ligh
 
 However, fiber-fed systems introduce additional considerations. These considerations include variations in fiber positioning or illumination, which can lead to changes in intensity across the detector. The changes in intensity will have to be corrected during flat-field calibration. In \cite{Martinez2001}, the importance of careful flat-fielding and illumination control is mentioned as an imperfect illumination of the spectrograph entrance can imprint systematic patterns onto the recorded spectra.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im3.png}
+\caption{Optical layout of a coudé spectrograph}
+\label{fig:im3}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im4.png}
+\caption{Schematic illustration of a telescope optical layout}
+\label{fig:im4}
+\end{figure}
+
 %------------------------------------------------------------
 
 \section{SPECTRAL ORDERS AND WAVELENGTH CALIBRATION}
@@ -82,6 +110,20 @@ In order to do a good wavelength calibration and choose the correct spectral ord
 To get a good spectroscopic analysis, it is essential to have an accurate wavelength calibration. The level of accuracy needed in the calibration is usually achieved by using emission-line lamps, such as Thorium–Argon (ThAr) lamps, which provide a dense set of narrow spectral lines with well-known wavelengths. As described in \cite{Martinez2001}, ThAr lamps are very suitable for high-precision wavelength calibration due to their stability and line density.
 
 Even so, while the detailed matching of observed ThAr spectra to reference line lists is part of the data reduction process, an understanding of the underlying calibration principle is necessary when designing the observational protocol and interpreting the results.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im5.jpeg}
+\caption{Diffraction orders produced by a grating for multiple wavelengths.}
+\label{fig:im5}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im6.jpg}
+\caption{Diffraction pattern showing the central maximum and higher-order diffraction fringes}
+\label{fig:im6}
+\end{figure}
 
 %------------------------------------------------------------
 
@@ -161,6 +203,27 @@ Finally, these different noise sources must be considered together. Assuming the
 
 This expression provides a practical framework for evaluating detector performance and for optimizing exposure times in spectroscopic observations. As it can be seen in both \cite{Martinez2001, Moore2014}, understanding which noise source dominates under given observational conditions is essential for designing efficient observing strategies and for interpreting the measured data.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im7.png}
+\caption{Overview of signal formation and noise sources in a CCD system.}
+\label{fig:im7}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im8.gif}
+\caption{Dark current dependence on CCD temperature.}
+\label{fig:im8}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im9.png}
+\caption{Read noise as a function of CCD readout frequency.}
+\label{fig:im9}
+\end{figure}
+
 %------------------------------------------------------------
 
 \section{CALIBRATION FRAMES}
@@ -185,6 +248,20 @@ I_{\text{flat-corrected}} =
 F_{\text{norm}} = \frac{F_{\text{master}}}{\left\langle F_{\text{master}} \right\rangle}.
 \label{eq:flat_correction}
 \end{equation}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im10.jpg}
+\caption{Mathematical calibration flow.}
+\label{fig:im10}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{../im/im11.jpg}
+\caption{Practical calibration workflow.}
+\label{fig:im11}
+\end{figure}
 
 %------------------------------------------------------------
 
