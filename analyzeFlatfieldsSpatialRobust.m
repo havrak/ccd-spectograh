@@ -1,10 +1,10 @@
 function gainResults = analyzeFlatfieldsSpatialRobust(folder, zeroResults, darkResults)
 
 % binning paramters
-binY = 5;
+binY = 3;
 
 % outlier rejection
-outlierSigma  = 5.0;
+outlierSigma  = 3.0;
 numSignalBins = 50;
 
 % stratified sampling paramters
@@ -50,9 +50,11 @@ for i = 1:numel(files)
 
 		% Statistics
 		mu = mean(chunks); % detrend shoudn't affect mu
-		varVal = var(chunks).*dofFactor;
+		varVal = var(chunks);
 
-		mask = mu > 0 & mu < 60000;
+        % .*dofFactor;
+
+		valid = mu > 0 & mu < 60000;
 		allMeans = [allMeans; mu(valid)'];
 		allVars  = [allVars; varVal(valid)'];
 	end
@@ -112,6 +114,8 @@ intercept = b(1);
 
 gainVal = 1 / slope;
 
+fprintf("%1.0f & %.4f \\\\\n",  binY, gainVal);
+
 % ---------------------------------------------------------
 % STAGE 4: STRATIFIED SAMPLING
 % ---------------------------------------------------------
@@ -150,7 +154,13 @@ allVars = finalVars;
 % ---------------------------------------------------------
 % STAGE 5: VISUALIZATION
 % ---------------------------------------------------------
-figure(101); clf;
+figWidth = 1000;
+figHeight = 800;
+mainFontSize = 18; % Large font to remain readable when image is resized small
+
+% --- FIGURE 1: Master Bias ---
+f1 = figure('Name', 'Inter-Frame Robust', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
 
 allNoise = sqrt(allVars);
 scatter(allMeans, allNoise, 2, 'k', 'filled', 'MarkerFaceAlpha', 0.05);
@@ -162,31 +172,21 @@ xFit = linspace(0, max(xData), 200);
 yFit = sqrt( (1/gainVal)*xFit + rnSquared );
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 
-title(sprintf('Photon Transfer Curve (Noise Scale)\nGain = %.3f e-/ADU', gainVal));
+% title(sprintf('Photon Transfer Curve (Noise Scale)\nGain = %.3f e-/ADU', gainVal));
 xlabel('Mean Signal (ADU)');
 ylabel('Noise (RMS ADU)');
 grid on;
 axis tight;
-xlim([0 60000]);
-legend('Measured Data','Binned Data', sprintf('Fit (G=%.2f)', gainVal), 'Fit Range Limit', 'Location', 'NorthWest');
-
-
-figure(102); clf;
-if ~isempty(sampleBinVars)
-	histogram(sampleBinVars, 50, 'Normalization', 'pdf'); hold on;
-	xline(sampleBinCutoff, 'r-', 'LineWidth', 2, 'Label', sprintf('Sigma Limit (%.1f)', outlierSigma));
-
-	title('DIAGNOSTIC: Variance Distribution (Sample Bin)');
-	xlabel('Pixel Variance'); ylabel('Probability Density');
-end
+ylim([0 4000]);
+legend('Measured Data','Binned Data', sprintf('Fit (G=%.4f)', gainVal), 'Fit Range Limit', 'Location', 'NorthWest');
+set(gca, 'FontSize', mainFontSize);
+exportgraphics(f1, fullfile('img', 'flat_spatial_robust.png'), 'Resolution', 300);
 
 % ---------------------------------------------------------
 % RESULTS
 % ---------------------------------------------------------
 gainResults.gain = gainVal;
 gainResults.x = xData;
-gainResults.y_noise = yDataNoise;
-
 fprintf('------------------------------------------------\n');
 fprintf('SPATIAL ANALYSIS RESULTS\n');
 fprintf('------------------------------------------------\n');

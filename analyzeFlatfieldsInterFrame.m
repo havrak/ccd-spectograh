@@ -118,7 +118,8 @@ gainVal = 1 / slope;
 % ---------------------------------------------------------
 % STAGE 5: VISUALIZATION (THE SQUARE ROOT PLOT)
 % ---------------------------------------------------------
-figure(101); clf;
+
+figure(101);
 allNoise = sqrt(allVars);
 scatter(allMeans, allNoise, 1, 'k', 'filled', 'MarkerFaceAlpha', 0.1);
 hold on;

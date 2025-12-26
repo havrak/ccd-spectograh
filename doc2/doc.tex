@@ -253,7 +253,7 @@ If we also add influence of other noises (here just read noise $\sigma_\mathrm{r
 	g\cdot \sigma = \sqrt{\overline{x}\cdot g + \sigma_\mathrm{ro}^2}.
 	\label{eq:gain_eq}
 \end{equation}
-As noise is statistically independent it's simply included in the sum, $\overline{x}$ is mean signal value, $\sigma$ it's standard deviation and lastly $g$ is gain\cite{Newberry1996}.
+As the noise is statistically independent it's simply included in the sum, $\overline{x}$ is mean signal value, $\sigma$ it's standard deviation and lastly $g$ is gain\cite{Newberry1996}.
 
 This equation is often modified for the purpose of numerical calculation as
 \begin{equation}
@@ -264,9 +264,83 @@ This removes unnecessary step of calculating square root.
 In non where sensor installation can enable a uniforma flatfields illumination good gain estimate can be made from just a couple of images\cite{irafGain}.
 Variances can also be calculated easily across different pixels - if their properties are similar.
 Coulde spectrograph in Ondřejov however doesn't allow an easy modification to the structure to ensure uniform illumination of the sensor.
-Incoming light thus still comes through the spectral dispersive grating and different parts of spectograph are then illuminated with different light intensities and at different wavelength.
-As light source doesn't have an constant spectrum illumination will thus be strictly uniform.
+Incoming light thus still comes through the spectral dispersive grating and different parts of spectrograph are then illuminated with different light intensities and at different wavelength.
+As the light source doesn't have an constant spectrum illumination will thus be strictly uniform.
 In addition but a small part of the sensor is actually illuminated -- there are two thin strips each for one of two optical fibres brining light to the sensor, while most of the sensor area is unilluminated.
+
+\subsection{Inter-Frame Flatfield Analysis}
+
+First tested approach to calculate gain was based on calculating variances and means for groups of images of a same exposure time.
+Variances were thus calculated not over groups of multiple pixels but for each pixel independently as guided by \cite{Robertson_2021}.
+Images, after subtraction of master zero frame, were first group by same illumination level and exposure.
+Then for groups where more than one image was present statistical properties were calculated.
+
+While for transient event detection in dark frames simple outlier rejection method based on $\overline{x} + n\cdot \sigma$ threshold was deemed sufficient here a more robust rejection method was implemented.
+This was done as in individual bins there might not be that many points and standard deviation might become significantly influenced by outliers -- thus not rejecting them properly.
+Instead a median absolute value (MAD) was used.
+MAD relies on median, which is much less likely to be influenced by outliers, otherwise the basic principle is similar to classical thresholding.
+Mean values of the data are sufficiently large for central limit theorem to apply \cite{Walpolec2002}.
+Thus a classical MAD scaling value of 1.4826 was kept, while cutoff value was chosen empirically based on data histogram.
+
+Problem of this approach was that dataset contains multiple images for the same configuration only for low exposure times (bellow 10 seconds).
+Thus only values under 6000 ADU were accounted for in the gain calculation \ref{img:interframerobust}.
+This was deemed to be insufficient as peak value of the 16~bit is more than ten times larger.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/flat_interframe_robust.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Inter-Frame Analysis}
+\label{img:interframerobust}
+\end{figure}
+
+Gain value of $g=0.1915$ was calculated using this method.
+Due to problematic nature of this approach it's confidence intervals weren't calculated and read noise wasn't set to scale with $\frac{1}{g^2}$.
+Still it's apparent that the sensor doesn't exhibit expected behavior and thus it's gain isn't completely linear.
+There's especially a visible trend of median deviator values at low ADU levels increasing much faster than they should.
+Or it's also possible that fibre alignment wasn't as steady as it should be and spectral lines were slightly shifted between images.
+
+
+\subsection{Spatial Flatfield Analysis}
+
+As at least pixels properties a are relatively constant in the sensor it was attempted to estimate gain while calculating statistical properties within individual pictures.
+In X axis are separated different wavelength it wouldn't be correct to group pixels in this direction.
+In Y direction however only one spectral line is present, however still not whole sensor is illuminated by it and even within bands with spectral lines brightness level isn't constant.
+Still were the gain values constant across different bin sizes it would provide some useful data.
+
+However as shown on table \ref{tab:spatial_flat} gain value changes significantly with bin sizes.
+And even when visualizing binned data it's clear that the trend isn't there \ref{img:flat_spatial_robust.png}
+
+\begin{table}[htbp]
+\caption{Spatial Flatfield Analysis Gain Estimates}
+\begin{center}
+\begin{tabular}{|c||c|c|}
+\hline
+	 Bin Height (px) & Gain ($\mathrm{e}^{-}/\mathrm{ADU}$) \\
+\hline
+\hline
+2 & 0.1211 \\
+\hline
+3 & 0.0854 \\
+\hline
+4 & 0.0826 \\
+\hline
+5 & 0.0401 \\
+\hline
+\end{tabular}
+	\label{tab:spatial_flat}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/flat_spatial_robust.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Spatial Analysis}
+\label{img:flat_spatial_robust}
+\end{figure}
+
+\subsection{Residual Flatfield Analysis}
 
 
 
