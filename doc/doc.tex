@@ -42,17 +42,18 @@ Following paper concerns itself with a process of measuring and calculating para
 
 %------------------------------------------------------------
 
-\section{Introduction}
+\section{INTRODUCTION}
 
 One of the primary tools used to investigate the physical properties of celestial objects is astronomical spectroscopy. This carries out a process that enables the determination of stellar temperatures, chemical composition, radial velocities and other fundamental parameters by dispersing incoming light into its constituent wavelengths. Nowadays, modern spectroscopic observations rely on large-aperture telescopes which are combined with sensitive CCD detectors and stable spectrographs.
 
-As emphasized by Martinez et al.\ in \textit{A Practical Guide to CCD Astronomy}, the scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}. Similarly, \textit{Lessons from the Masters} highlights that accurate spectroscopic measurements require careful instrument characterization and calibration before any scientific interpretation can be performed \cite{Moore2014}.
+As emphasized by Martinez et al. in A Practical Guide to CCD Astronomy, the scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}. Similarly, Lessons from the Masters highlights that accurate spectroscopic measurements require careful instrument characterization and calibration before any scientific interpretation can be performed \cite{Moore2014}.
 
 This protocol describes the instrumental setup and theoretical background relevant to spectroscopic observations carried out with the Ondřejov 2-m telescope. Particular emphasis is placed on the principles of spectrograph operation, CCD detector characteristics, and the main noise sources affecting the acquired data. This theoretical foundation provides the basis for the data reduction and analysis steps described in later sections.
 
+
 %------------------------------------------------------------
 
-\section{Ondřejov 2-m Telescope}
+\section{ONDŘEJOV 2-M TELESCOPE}
 
 The Ondřejov 2-m telescope, also known as the Perek telescope, is built as a classical Cassegrain reflector with a primary mirror which has a diameter of two meters and is operated by the Astronomical Institute of the Czech Academy of Sciences. The telescope provides a combination of high light-gathering power and mechanical stability, making it well suited for high-resolution spectroscopic observations of relatively faint astronomical targets, as said in \cite{Ondrejov2m}.
 
@@ -64,70 +65,73 @@ This telescope is equipped with accurate guiding and tracking systems, which are
 
 %------------------------------------------------------------
 
-\section{Spectrograph Overview and Optical Layout}
+\section{SPECTROGRAPH OVERVIEW AND OPTICAL LAYOUT}
 
-A spectrograph is an optical instrument designed so that incoming light is dispersed into its different wavelength components. In astronomical spectrographs, this dispersion is achieved by using a diffraction grating. According to \cite{Moore2014}, the basic components required for a spectrograph to function correctly are an entrance slit or optical fiber, a collimator, a dispersive element, a camera system, and a detector.
+To start with, a spectrograph is an optical instrument designed in a way that incoming light is dispersed into its different wavelength components. In the field of astronomical spectrographs, this kind of dispersion is achieved by using a diffraction grating. According to \cite{Moore2014}, basic components of the spectrograph that will give the expected result are an entrance slit or fiber, a collimator, a dispersive element, a camera system and a detector.
 
-The working mechanism of the spectrograph begins with the light entering through the slit or optical fiber, where it is collimated into a parallel beam. This beam encounters the diffraction grating, which separates the light according to wavelength. The dispersed light is then focused onto the CCD detector by camera optics, where the spectrum is recorded. As mentioned in \cite{Martinez2001}, fiber-fed spectrographs are often preferred because they decouple the spectrograph mechanically from the telescope, reducing flexure and improving long-term stability.
+To continue with, the working mechanism of the spectrograph begins with the light that enters the spectrograph through the slit or optical fiber, collimating into a parallel beam. In this beam, the diffraction grating is encountered, which separates the light according to wavelength. Next, the dispersed light is subsequently focused onto the CCD detector by camera optics, where the spectrum will be recorded. As mentioned in \cite{Martinez2001}, fiber-fed spectrographs are often preferred because they decouple the spectrograph mechanically from the telescope, reducing flexure and improving long-term stability.
 
-However, fiber-fed systems introduce additional considerations. Variations in fiber positioning or illumination can lead to changes in intensity across the detector, which must be corrected during flat-field calibration. As stated in \cite{Martinez2001}, imperfect illumination of the spectrograph entrance can imprint systematic patterns onto the recorded spectra, highlighting the importance of careful flat-fielding and illumination control.
-
-%------------------------------------------------------------
-
-\section{Spectral Orders and Wavelength Calibration}
-
-High-resolution spectrographs often operate in multiple diffraction orders, particularly when echelle gratings are used. In this system, each spectral order corresponds to a different diffraction condition of the grating, allowing a wide wavelength range to be recorded simultaneously on the CCD detector. As described in \cite{Moore2014}, overlapping orders are separated using a cross-dispersing element, producing a two-dimensional spectral format.
-
-Accurate wavelength calibration is essential for spectroscopic analysis. This is typically achieved using emission-line lamps, such as Thorium--Argon (ThAr) lamps, which provide a dense set of narrow spectral lines with well-known wavelengths. As described in \cite{Martinez2001}, ThAr lamps are particularly suitable for high-precision wavelength calibration due to their stability and line density.
-
-While the detailed matching of observed ThAr spectra to reference line lists is part of the data reduction process, understanding the underlying calibration principle is essential when designing the observational protocol and interpreting the results.
+However, fiber-fed systems introduce additional considerations. These considerations include variations in fiber positioning or illumination, which can lead to changes in intensity across the detector. The changes in intensity will have to be corrected during flat-field calibration. In \cite{Martinez2001}, the importance of careful flat-fielding and illumination control is mentioned as an imperfect illumination of the spectrograph entrance can imprint systematic patterns onto the recorded spectra.
 
 %------------------------------------------------------------
 
-\section{CCD Detector Fundamentals}
+\section{SPECTRAL ORDERS AND WAVELENGTH CALIBRATION}
 
-Charge-coupled devices are widely used in astronomical spectroscopy due to their high quantum efficiency, linear response over a wide dynamic range, and relatively low noise characteristics. These properties make CCDs suitable for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements.
+In order to do a good wavelength calibration and choose the correct spectral orders, it is to be understood that high-resolution spectrographs often operate in multiple diffraction orders, more precisely, when echelle gratings are used. In this system, each spectral order corresponds to a different diffraction condition of the grating. This allows a wider wavelength range to be recorded simultaneously on the CCD detector. In \cite{Moore2014} it is described that in order to separate overlapping orders, a cross-dispersing element is employed, producing a two-dimensional spectral format.
 
-Incident photons interact with the silicon substrate of the CCD, generating photoelectrons through the photoelectric effect. The number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency. The photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time. Through a sequence of clocked voltage shifts, the stored charge is transferred across the detector and eventually read out at an amplifier.
+To get a good spectroscopic analysis, it is essential to have an accurate wavelength calibration. The level of accuracy needed in the calibration is usually achieved by using emission-line lamps, such as Thorium–Argon (ThAr) lamps, which provide a dense set of narrow spectral lines with well-known wavelengths. As described in \cite{Martinez2001}, ThAr lamps are very suitable for high-precision wavelength calibration due to their stability and line density.
 
-During readout, the collected charge is converted into a voltage signal and digitized by an analog-to-digital converter, producing values recorded in Analog-to-Digital Units (ADU). This process introduces several instrumental effects that must be characterized and corrected during data reduction \cite{Moore2014}.
-
-The CCD gain determines the conversion between the number of electrons and the recorded ADU value. Accurate knowledge of the gain is essential for converting measured signals into physically meaningful quantities and for estimating noise contributions. As emphasized in \cite{Martinez2001}, an incorrect gain value leads to systematic errors in noise estimation and signal-to-noise ratio calculations.
-
-Another important characteristic of CCD detectors is their linear response, which ensures that the recorded signal is proportional to the number of incident photons over a wide range of illumination levels. Deviations from linearity may occur at very low signal levels or near full-well capacity due to charge saturation. Linearity tests are therefore commonly performed to determine the valid operational range of the detector \cite{Martinez2001}.
+Even so, while the detailed matching of observed ThAr spectra to reference line lists is part of the data reduction process, an understanding of the underlying calibration principle is necessary when designing the observational protocol and interpreting the results.
 
 %------------------------------------------------------------
 
-\section{Noise Sources in CCD Detectors}
+\section{CCD DETECTOR FUNDAMENTALS}
 
-Several independent noise sources affect measurements performed with CCD detectors. The main contributions are read noise, dark current noise, and photon (shot) noise.
+Charge-Couple Devices are widely used in astronomical spectroscopy since they are well suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements. This is because of their properties, which include high quantum efficiency, linear response over a wide dynamic range and relatively low noise characteristics. 
 
-Read noise is introduced during the electronic readout process and is independent of exposure time. It originates from multiple electronic components such as the output amplifier, charge-to-voltage conversion stage, and analog-to-digital converter. Fluctuations during readout lead to uncertainty in the measured signal, even in the absence of incident light. Read noise is typically characterized using bias frames and dominates at low signal levels \cite{Moore2014}.
+The operating mode of these devices is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect. This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency. The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time. Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector and eventually read out at an amplifier. In this readout process, the collected charge is converted to a voltage signal in order to be digitized by analog-to-digital converter (ADC) and recorded in units of Analog-to-Digital Units (ADU). During this process, several instrumental effects that have to be characterized and corrected during data reduction are introduced \cite{Moore2014}.
 
-Dark current noise arises from thermally generated electrons within the silicon lattice of the CCD. These electrons are indistinguishable from photoelectrons and accumulate linearly with exposure time. Since the generation of thermal electrons is a random process, the associated dark noise follows Poisson statistics.
+Then, the CCD gain determines the conversion between the number of electrons and the recorded ADU value, in units of electrons per ADU. Knowledge of this gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources. In \cite{Martinez2001}, it is emphasized that an incorrect gain value leads to systematic errors in noise estimations and subsequently in signal-to-noise ratio calculations, affecting the reliability of scientific results.
+
+Another important characteristic of CCD detectors is their linear response, which assures that the recorded signal is proportional to the number of incident photons over a wide range of illumination levels. The assumption of linearity is crucial for many calibration procedures, such as flat-field correction and gain determination. Deviations from linearity may occur at very low signal levels due to electronic effects or near full-well capacity due to charge saturation. Consequently, linearity tests are commonly performed to verify the operational range of the detector \cite{Martinez2001}.
+
+In addition to gain and linearity, CCD performance is influenced by pixel-to-pixel variations in sensitivity, commonly referred to as pixel response non-uniformity. These variations arise from manufacturing imperfections and are corrected using flat-field calibration frames. Understanding the physical operation of CCD detectors and their fundamental characteristics is therefore essential for the correct interpretation of spectroscopic data and forms the basis for the calibration and noise analysis procedures described in subsequent sections.
+
+%------------------------------------------------------------
+
+\section{NOISE SOURCES IN CCD DETECTORS}
+
+Several independent noise sources affect measurements performed with CCD detectors. The main contributions are read noise, dark current noise, and photon (shot) noise. A clear understanding of the physical origin and statistical properties of these noise sources is essential for interpreting CCD data and for optimizing observational strategies.
+
+To start understanding, there is read noise, which is introduced during the electronic readout process of the CCD and is independent of the exposure time. It comes from multiple electronic components, such as the output amplifier, the charge-to-voltage conversion stage or the analog-to-digital converter. Fluctuations in the process of the readout lead to uncertainty in the measured signal, even in the absence of incident light.
+
+Read noise is typically characterized using bias (zero-exposure) frames, which record the electronic offset and readout fluctuations of the detector. By analyzing the statistical dispersion of pixel values across multiple bias frames, the read noise can be estimated on a pixel-by-pixel basis or as a global detector parameter. As it can be seen in \cite{Moore2014}, read noise limits low signal levels, where it can dominate over other noise sources and significantly reduce the signal-to-noise ratio. This happens because read noise does not depend on exposure time, as the collected signal increases, its relative contribution decreases. To achieve reliable measurements, read noise has to be minimized for short exposures or observations of faint sources. Read noise is well described by a Gaussian (normal) distribution, as it originates from the sum of many independent electronic processes in the readout chain \cite{Moore2014}.
 % TODO: Insert dark noise equation here
 
-As stated in \cite{Martinez2001}, dark current strongly depends on detector temperature and can increase rapidly with small temperature variations. CCD detectors are therefore commonly cooled to reduce dark current and its associated noise.
+There is also dark current noise, which arises from thermally generated electrons within the silicon lattice of the CCD, even when no light is incident on the detector. These electrons generate because of thermal excitation and are indistinguishable from the photoelectrons that come from incident photons. As a result, dark current introduces an additional signal that accumulates linearly with exposure time. Since the generation of thermal electrons is a random process, the associated dark noise follows Poisson statistics. The standard deviation of the dark noise is therefore #equation.
 
-Photon noise, also known as shot noise, originates from the statistical nature of photon arrival at the detector. Even for a constant light source, the number of detected photons fluctuates according to Poisson statistics, introducing an uncertainty that cannot be removed by calibration.
+As stated in \cite{Martinez2001}, dark current strongly depends on detector temperature and can increase rapidly with the slightest temperature changes. To minimize this, CCD detectors are commonly cooled, avoiding the temperature changes and reducing the dark current and associated noise. In detectors that have a good cooling system, the contribution of dark current noise may become negligible compared to other noise sources. Dark current noise follows Poisson statistics, since it is generated by random thermal electron production events within the CCD lattice \cite{Martinez2001}.
+
+Lastly, the other noise source that can be found is the photon noise, also known as shot noise, which originates from the statistical nature of photon arrival at the detector. The number of detected photons fluctuates from one exposure to another even for a constant light source, since they arrive at the CCD detector following Poisson statistics. The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration. If photons are detected during the exposure, the corresponding shot noise is given by 
 % TODO: Insert photon noise equation here
 
-Assuming that the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions.
-% TODO: Insert total noise equation here
+Photon noise becomes the dominant noise source at high fluxes since it increases with signal level. Compared to read noise and dark current noise, photon noise represents a fundamental physical limit and cannot be reduced by just making instrumental improvements. The way to reduce its relative impact would be by increasing the signal level, as stated in \cite{Martinez2001}, where it is stated that it can be reduced through longer exposure times or larger telescope apertures. Photon noise also follows a Poisson distribution, reflecting the stochastic nature of photon arrival at the detector \cite{Martinez2001}.
 
-Understanding which noise source dominates under given observational conditions is essential for optimizing exposure times and for interpreting the measured data \cite{Martinez2001, Moore2014}.
+Finally, these different noise sources must be considered together. Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions: % TODO: Insert total noise equation here
+
+This expression provides a practical framework for evaluating detector performance and for optimizing exposure times in spectroscopic observations. As it can be seen in both \cite{Martinez2001, Moore2014}, understanding which noise source dominates under given observational conditions is essential for designing efficient observing strategies and for interpreting the measured data.
 
 %------------------------------------------------------------
 
-\section{Calibration Frames}
+\section{CALIBRATION FRAMES}
 
-Calibration frames are required to correct instrumental effects present in CCD data. These frames are essential for separating the true astronomical signal from detector- and instrument-related contributions. The most commonly used calibration frames are bias frames, dark frames, and flat-field frames.
+Calibration frames are required in any configuration of the CCD detectors since there are instrumental effects present in CCD data. These different types of calibration frames are essential to separate the true astronomical signal from the detector and instrumental related contributions. Different contributions are needed to address different aspects of the detector response. The most used ones are bias frames, dark frames and flat-field frames.
 
-Bias frames are zero-exposure images used to measure the electronic offset and read noise of the detector. By combining multiple bias frames, a master bias frame can be constructed and subtracted from all other images to remove this electronic offset \cite{Moore2014}.
+Going into more depth of these types of calibration frames, bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector. Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level and readout fluctuations. As stated in \cite{Moore2014}, by combining multiple bias frames, a master bias frame can be constructed and subsequently subtracted from all other images to remove this electronic offset.
 
-Dark frames are acquired with the same exposure time and detector temperature as the science observations but without incident light. They are used to characterize dark current and fixed-pattern effects such as hot pixels. As discussed in \cite{Martinez2001}, these effects can be effectively removed by subtracting a master dark frame.
+Next, dark frames are acquired with the same exposure time and detector temperature as the science observations but without any incident light. They are used to characterize the dark current and its associated noise. The accumulated dark signal increases linearly with exposure time and depends strongly on detector temperature. From \cite{Martinez2001}, dark frames can also capture fixed-pattern components of the dark signal, such as hot pixels. These can be removed by subtracting a master dark frame from the data.
 
-Flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients. Perfectly uniform illumination is difficult to achieve in practice, particularly in fiber-fed spectrographs where variations in illumination can occur. As stated in \cite{Martinez2001}, these effects must be carefully accounted for to avoid introducing systematic errors into the calibrated spectra.
+Finally, flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients across the detector. In perfect conditions, flat-field frames would require a uniform illumination of the CCD, but in practice, this perfect uniformity is next to impossible to achieve. In fiber-fed spectrographs, variations in fiber positioning or illumination can introduce additional gradients in the flat-field images. As stated in \cite{Martinez2001}, these effects must be carefully accounted for during calibration to avoid introducing systematic errors into the corrected spectra.
 
 %------------------------------------------------------------
 
