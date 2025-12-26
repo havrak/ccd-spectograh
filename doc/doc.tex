@@ -89,7 +89,12 @@ Even so, while the detailed matching of observed ThAr spectra to reference line 
 
 Charge-Couple Devices are widely used in astronomical spectroscopy since they are well suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements. This is because of their properties, which include high quantum efficiency, linear response over a wide dynamic range and relatively low noise characteristics. 
 
-The operating mode of these devices is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect. This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency. The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time. Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector and eventually read out at an amplifier. In this readout process, the collected charge is converted to a voltage signal in order to be digitized by analog-to-digital converter (ADC) and recorded in units of Analog-to-Digital Units (ADU). During this process, several instrumental effects that have to be characterized and corrected during data reduction are introduced \cite{Moore2014}.
+The operating mode of these devices is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect. This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency. The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time. Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector and eventually read out at an amplifier. In this readout process, the collected charge is converted to a voltage signal in order to be digitized by analog-to-digital converter (ADC) and recorded in units of Analog-to-Digital Units (ADU). During this process, several instrumental effects that have to be characterized and corrected during data reduction are introduced \cite{Moore2014}. This is expressed as:
+
+\begin{equation}
+N_{e^-} = G \cdot S_{\text{ADU}},
+\label{eq:gain_def}
+\end{equation}
 
 Then, the CCD gain determines the conversion between the number of electrons and the recorded ADU value, in units of electrons per ADU. Knowledge of this gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources. In \cite{Martinez2001}, it is emphasized that an incorrect gain value leads to systematic errors in noise estimations and subsequently in signal-to-noise ratio calculations, affecting the reliability of scientific results.
 
@@ -106,18 +111,53 @@ Several independent noise sources affect measurements performed with CCD detecto
 To start understanding, there is read noise, which is introduced during the electronic readout process of the CCD and is independent of the exposure time. It comes from multiple electronic components, such as the output amplifier, the charge-to-voltage conversion stage or the analog-to-digital converter. Fluctuations in the process of the readout lead to uncertainty in the measured signal, even in the absence of incident light.
 
 Read noise is typically characterized using bias (zero-exposure) frames, which record the electronic offset and readout fluctuations of the detector. By analyzing the statistical dispersion of pixel values across multiple bias frames, the read noise can be estimated on a pixel-by-pixel basis or as a global detector parameter. As it can be seen in \cite{Moore2014}, read noise limits low signal levels, where it can dominate over other noise sources and significantly reduce the signal-to-noise ratio. This happens because read noise does not depend on exposure time, as the collected signal increases, its relative contribution decreases. To achieve reliable measurements, read noise has to be minimized for short exposures or observations of faint sources. Read noise is well described by a Gaussian (normal) distribution, as it originates from the sum of many independent electronic processes in the readout chain \cite{Moore2014}.
-% TODO: Insert dark noise equation here
 
-There is also dark current noise, which arises from thermally generated electrons within the silicon lattice of the CCD, even when no light is incident on the detector. These electrons generate because of thermal excitation and are indistinguishable from the photoelectrons that come from incident photons. As a result, dark current introduces an additional signal that accumulates linearly with exposure time. Since the generation of thermal electrons is a random process, the associated dark noise follows Poisson statistics. The standard deviation of the dark noise is therefore #equation.
+\begin{equation}
+\sigma_{\text{read}}(x,y)
+=
+\sqrt{
+\frac{1}{N-1}
+\sum_{i=1}^{N}
+\left[
+B_i(x,y) - \langle B(x,y) \rangle
+\right]^2
+},
+\label{eq:read_noise_pixel}
+\end{equation}
+
+There is also dark current noise, which arises from thermally generated electrons within the silicon lattice of the CCD, even when no light is incident on the detector. These electrons generate because of thermal excitation and are indistinguishable from the photoelectrons that come from incident photons. As a result, dark current introduces an additional signal that accumulates linearly with exposure time. Since the generation of thermal electrons is a random process, the associated dark noise follows Poisson statistics. The standard deviation of the dark noise is therefore:
+
+\begin{equation}
+\sigma_{\text{dark}} = \sqrt{N_{\text{dark}}}
+= \sqrt{I_{\text{dark}}\,t},
+\label{eq:dark_noise}
+\end{equation}
 
 As stated in \cite{Martinez2001}, dark current strongly depends on detector temperature and can increase rapidly with the slightest temperature changes. To minimize this, CCD detectors are commonly cooled, avoiding the temperature changes and reducing the dark current and associated noise. In detectors that have a good cooling system, the contribution of dark current noise may become negligible compared to other noise sources. Dark current noise follows Poisson statistics, since it is generated by random thermal electron production events within the CCD lattice \cite{Martinez2001}.
 
-Lastly, the other noise source that can be found is the photon noise, also known as shot noise, which originates from the statistical nature of photon arrival at the detector. The number of detected photons fluctuates from one exposure to another even for a constant light source, since they arrive at the CCD detector following Poisson statistics. The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration. If photons are detected during the exposure, the corresponding shot noise is given by 
-% TODO: Insert photon noise equation here
+Lastly, the other noise source that can be found is the photon noise, also known as shot noise, which originates from the statistical nature of photon arrival at the detector. The number of detected photons fluctuates from one exposure to another even for a constant light source, since they arrive at the CCD detector following Poisson statistics. The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration. If photons are detected during the exposure, the corresponding shot noise is given by:
+
+\begin{equation}
+\sigma_{\text{shot}} = \sqrt{N_{\text{ph}}}.
+\label{eq:shot_noise}
+\end{equation}
+
 
 Photon noise becomes the dominant noise source at high fluxes since it increases with signal level. Compared to read noise and dark current noise, photon noise represents a fundamental physical limit and cannot be reduced by just making instrumental improvements. The way to reduce its relative impact would be by increasing the signal level, as stated in \cite{Martinez2001}, where it is stated that it can be reduced through longer exposure times or larger telescope apertures. Photon noise also follows a Poisson distribution, reflecting the stochastic nature of photon arrival at the detector \cite{Martinez2001}.
 
-Finally, these different noise sources must be considered together. Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions: % TODO: Insert total noise equation here
+Finally, these different noise sources must be considered together. Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions:
+
+\begin{equation}
+\sigma_{\text{total}}^{2}
+=
+\sigma_{\text{read}}^{2}
++
+\sigma_{\text{dark}}^{2}
++
+\sigma_{\text{shot}}^{2}.
+\label{eq:total_noise}
+\end{equation}
+
 
 This expression provides a practical framework for evaluating detector performance and for optimizing exposure times in spectroscopic observations. As it can be seen in both \cite{Martinez2001, Moore2014}, understanding which noise source dominates under given observational conditions is essential for designing efficient observing strategies and for interpreting the measured data.
 
@@ -127,11 +167,24 @@ This expression provides a practical framework for evaluating detector performan
 
 Calibration frames are required in any configuration of the CCD detectors since there are instrumental effects present in CCD data. These different types of calibration frames are essential to separate the true astronomical signal from the detector and instrumental related contributions. Different contributions are needed to address different aspects of the detector response. The most used ones are bias frames, dark frames and flat-field frames.
 
-Going into more depth of these types of calibration frames, bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector. Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level and readout fluctuations. As stated in \cite{Moore2014}, by combining multiple bias frames, a master bias frame can be constructed and subsequently subtracted from all other images to remove this electronic offset.
+Going into more depth of these types of calibration frames, bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector. Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level and readout fluctuations. As stated in \cite{Moore2014}, by combining multiple bias frames, a master bias frame can be constructed and subsequently subtracted from all other images to remove this electronic offset. This is represented as:
+
+\begin{equation}
+I_{\text{bias-corrected}} = I_{\text{raw}} - B_{\text{master}}.
+\label{eq:bias_subtraction}
+\end{equation}
 
 Next, dark frames are acquired with the same exposure time and detector temperature as the science observations but without any incident light. They are used to characterize the dark current and its associated noise. The accumulated dark signal increases linearly with exposure time and depends strongly on detector temperature. From \cite{Martinez2001}, dark frames can also capture fixed-pattern components of the dark signal, such as hot pixels. These can be removed by subtracting a master dark frame from the data.
 
-Finally, flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients across the detector. In perfect conditions, flat-field frames would require a uniform illumination of the CCD, but in practice, this perfect uniformity is next to impossible to achieve. In fiber-fed spectrographs, variations in fiber positioning or illumination can introduce additional gradients in the flat-field images. As stated in \cite{Martinez2001}, these effects must be carefully accounted for during calibration to avoid introducing systematic errors into the corrected spectra.
+Finally, flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients across the detector. In perfect conditions, flat-field frames would require a uniform illumination of the CCD, but in practice, this perfect uniformity is next to impossible to achieve. In fiber-fed spectrographs, variations in fiber positioning or illumination can introduce additional gradients in the flat-field images. As stated in \cite{Martinez2001}, these effects must be carefully accounted for during calibration to avoid introducing systematic errors into the corrected spectra. They are corrected following the next equation:
+
+\begin{equation}
+I_{\text{flat-corrected}} =
+\frac{I_{\text{raw}} - B_{\text{master}} - D_{\text{master}}}{F_{\text{norm}}},
+\quad
+F_{\text{norm}} = \frac{F_{\text{master}}}{\left\langle F_{\text{master}} \right\rangle}.
+\label{eq:flat_correction}
+\end{equation}
 
 %------------------------------------------------------------
 
