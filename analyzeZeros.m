@@ -51,11 +51,12 @@ if plotFlag
 
     imagesc(zeroResults.masterZero);
     colorbar;
-    title('Master Bias Frame (Median)', 'FontSize', mainFontSize);
+    % title('Master Bias Frame (Median)', 'FontSize', mainFontSize);
     colormap(gca, 'gray');
     set(gca, 'FontSize', mainFontSize);
     axis image; % Keep aspect ratio of the sensor
-
+   xlabel('Sensor X', 'FontSize', mainFontSize);
+    ylabel('Sensor Y', 'FontSize', mainFontSize);
     exportgraphics(f1, fullfile('img', 'zero_master_frame.png'), 'Resolution', 300);
 
     % --- FIGURE 2: Read Noise Map ---
@@ -64,12 +65,14 @@ if plotFlag
 
     imagesc(zeroResults.readNoiseMap);
     colorbar;
-    title('Read Noise Map (RMS)', 'FontSize', mainFontSize);
+    % title('Read Noise Map (RMS)', 'FontSize', mainFontSize);
     colormap(gca, 'gray');
 
     clim([0, prctile(zeroResults.readNoiseMap(:), 99)]); % Smart contrast
     set(gca, 'FontSize', mainFontSize);
     axis image;
+       xlabel('Sensor X', 'FontSize', mainFontSize);
+    ylabel('Sensor Y', 'FontSize', mainFontSize);
 
     exportgraphics(f2, fullfile('img', 'zero_noise_map.png'), 'Resolution', 300);
 
@@ -85,7 +88,8 @@ if plotFlag
     y_fit = normpdf(x_fit, mu_bias, sigma_bias);
 
     plot(x_fit, y_fit, 'r-', 'LineWidth', 3); % Thicker line for visibility
-    title(sprintf('Master Uniformity\n\\mu=%.2f, \\sigma=%.2f', mu_bias, sigma_bias), 'FontSize', mainFontSize);
+    title(sprintf('\\mu=%.2f, \\sigma=%.2f', mu_bias, sigma_bias), 'FontSize', mainFontSize);
+    % title(sprintf('Master Uniformity\n\\mu=%.2f, \\sigma=%.2f', mu_bias, sigma_bias), 'FontSize', mainFontSize);
     xlabel('ADU', 'FontSize', mainFontSize);
     ylabel('Probability Density', 'FontSize', mainFontSize);
     legend({'Data', 'Gaussian Fit'}, 'FontSize', mainFontSize, 'Location', 'best');
@@ -117,7 +121,8 @@ if plotFlag
 
     plot(x_fit_stack, y_fit_stack, 'k--', 'LineWidth', 3);
 
-    title(sprintf('Total Stack Noise\n\\mu=%.2f, \\sigma=%.2f', mu_all, sigma_all), 'FontSize', mainFontSize);
+    title(sprintf('\\mu=%.2f, \\sigma=%.2f', mu_all, sigma_all), 'FontSize', mainFontSize);
+    % title(sprintf('Total Stack Noise\n\\mu=%.2f, \\sigma=%.2f', mu_all, sigma_all), 'FontSize', mainFontSize);
     xlabel('ADU', 'FontSize', mainFontSize);
     ylabel('Probability Density', 'FontSize', mainFontSize);
     legend({'All Pixels', 'Gaussian Fit'}, 'FontSize', mainFontSize, 'Location', 'best');

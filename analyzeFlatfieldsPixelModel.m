@@ -12,8 +12,11 @@ BIN_SETTINGS.maxADU       = 55000; % Saturation cutoff
 
 % Sampling Settings (Per Image)
 SAMPLE.numLevels     = 500;  % How many intensity levels to split each image into
-SAMPLE.pointsPerLevel = 10000; % Max points to take per level (20k points max per image)
-rnSquared = zeroResults.globalReadNoise; % Use pre-calculated Read Noise
+SAMPLE.pointsPerLevel = 10000; % Max points to take per level (20k points max per image
+rnSquared = zeroResults.globalReadNoise.^2; % Use pre-calculated Read Noise
+
+INTEROLATION_SETTING.calcReadNoise = 0;
+INTEROLATION_SETTING.statisticsToolbox = 1;
 
 files = dir(fullfile(folder, '*.fit'));
 if isempty(files)
@@ -183,7 +186,7 @@ end
 % ---------------------------------------------------------
 
 % --- Fit per bin ---
-% Equation: Variance = (1/Gain) * Signal + ReadNoise^2
+% Equation: gain*Std = sqrt((1/Gain) * Signal + (1/Gain^2) * ReadNoise^2
 % y = mx + c
 % m = 1/Gain
 % c = ReadNoise^2 (We can fix this or let it float. Let's fix it for robustness)
@@ -193,21 +196,71 @@ localGain = binMeans ./ (binVars - rnSquared);
 % --- Polyfit of whole function ---
 fprintf('Fitting full noise model...\n');
 X = binMeans;
-Y = sqrt(binVars);
+Y = binVars;
 
 g0 = 1.0;
-rn0 = sqrt(zeroResults.readNoise);
-
-modelFun = @(p, x) sqrt(x ./ p(1) + p(2)^2);
-objective = @(p) sum( (Y - modelFun(p, X)).^2 );
-
+rn0 = zeroResults.globalReadNoise;
 options = optimset('Display','off', 'TolX', 1e-6);
-p_opt = fminsearch(objective, [g0, rn0], options);
 
-gainVal = p_opt(1);
-fitRN   = p_opt(2);
+if INTEROLATION_SETTING.statisticsToolbox == 1
+    if INTEROLATION_SETTING.calcReadNoise == 1
+        modelFun = @(p, x) x ./ p(1) + (p(2)^2)./(p(1).^2);
+        [beta, R, J, CovB, MSE] = nlinfit(X, Y, modelFun, [g0, rn0]);
+        ci = nlparci(beta, R, 'Jacobian', J);
 
-fprintf('Fit Results -> Gain: %.4f e-/ADU | RN: %.2f ADU\n', gainVal, fitRN);
+        % Standard Errors (Half-width of CI / 1.96 approx, or sqrt(diag(CovB)))
+        se = sqrt(diag(CovB));
+        gainVal = beta(1);
+        gainSE  = se(1);  % Standard Error of Gain
+        fitRN   = beta(2);
+        rnSE    = se(2);  % Standard Error of RN
+        p_opt = [gainVal, fitRN];
+    else
+        modelFun = @(p, x) x ./ p(1) + rn0/p(1)^2;
+        [beta, R, J, CovB, MSE] = nlinfit(X, Y, modelFun, [g0]);
+        ci = nlparci(beta, R, 'Jacobian', J);
+
+        % Standard Errors (Half-width of CI / 1.96 approx, or sqrt(diag(CovB)))
+        se = sqrt(diag(CovB));
+        gainVal = beta(1);
+        gainSE  = se(1);  % Standard Error of Gain
+        fitRN   = zeroResults.globalReadNoise;
+        p_opt = [gainVal];
+        rnSE    = 0;  % Standard Error of RN
+    end
+
+    fprintf('------------------------------------------------\n');
+    fprintf('FLATFIELD ANALYSIS RESULTS\n');
+    fprintf('------------------------------------------------\n');
+    fprintf('Gain value:            %.6f +/- %.4f e-/ADU\n', gainVal, 1.96*gainSE);
+    fprintf('Noise value:           %.4f +/- %.2f ADU\n', fitRN, 1.96*rnSE);
+    fprintf('------------------------------------------------\n\n');
+
+else
+    if INTEROLATION_SETTING.calcReadNoise == 1
+        modelFun = @(p, x) x ./ p(1) + (p(2)^2)./(p(1).^2);
+        objective = @(p) sum( (Y - modelFun(p, X)).^2 );
+        p_opt = fminsearch(objective, [g0, rn0], options);
+
+        fitRN   = p_opt(2);
+    else
+        modelFun = @(p, x) x ./ p(1) + rn0/p(1)^2;
+        objective = @(p) sum( (Y - modelFun(p, X)).^2 );
+        p_opt = fminsearch(objective, [g0], options);
+        fitRN   = zeroResults.globalReadNoise;
+
+    end
+
+    gainVal = p_opt(1);
+    fprintf('------------------------------------------------\n');
+    fprintf('FLATFIELD ANALYSIS RESULTS\n');
+    fprintf('------------------------------------------------\n');
+    fprintf('Gain value:            %.6f e-/ADU\n', gainVal);
+    fprintf('Noise value:           %.4f ADU\n', fitRN);
+    fprintf('------------------------------------------------\n\n');
+end
+
+
 
 % ---------------------------------------------------------
 % STAGE 5: SHUTTER OFFSET ESTIMATION
@@ -247,7 +300,7 @@ nexttile;
 scatter(binMeans, binStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
 hold on;
 xFit = linspace(0, max(binMeans), 200);
-yFit = modelFun(p_opt, xFit);
+yFit = sqrt(modelFun(p_opt, xFit));
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 plot(xFit, sqrt(xFit ./ gainVal), 'b:', 'LineWidth', 1.5);
 xlabel('Signal (ADU)'); ylabel('Noise \sigma (ADU)');
@@ -344,7 +397,7 @@ xlim([-4*theoreticalSigma, 4*theoreticalSigma]);
 
 
 % ---------------------------------------------------------
-% RETURN 
+% RETURN
 % ---------------------------------------------------------
 gainResults.gain = gainVal;
 gainResults.shutterOffset = avgShutterOffset;

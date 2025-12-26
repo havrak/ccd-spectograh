@@ -80,7 +80,7 @@ fprintf('  Gain:              %.2f e-/ADU\n', gain);
 fprintf('------------------------------------------------\n');
 fprintf('Master Dark Current Statistics:\n');
 fprintf('  Master Dark Std:   %.2f ADU (Spatial)\n', std(masterDark(:)));
-fprintf('  Master Dark Mean:   %.2f ADU (Spatial)\n', mean(masterDark(:)));
+fprintf('  Master Dark Mean:  %.2f ADU (Spatial)\n', mean(masterDark(:)));
 fprintf('------------------------------------------------\n');
 fprintf('Sensor Statistics:\n');
 fprintf('  Std Dark Current:  %.7f e-/s (Uniformity)\n', stdDarkSpatial);
@@ -113,13 +113,12 @@ if plotFlag
     imagesc(darkAnalysis.masterDark);
     colorbar;
     colormap(gca, 'gray'); 
-    title('Master Dark (Gamma Removed)', 'FontSize', mainFontSize);
+    % title('Master Dark (Gamma Removed)', 'FontSize', mainFontSize);
     clim([0 prctile(masterDark(:), 99)]); 
     set(gca, 'FontSize', mainFontSize);
     axis image;
 
-    fprintf('Exporting img/Dark_Master.png...\n');
-    exportgraphics(f1, fullfile('img', 'Dark_Master.png'), 'Resolution', 300);
+    exportgraphics(f1, fullfile('img', 'dark_master.png'), 'Resolution', 300);
 
     % --- FIGURE 2: Dark Current Distribution (Poisson) ---
     f2 = figure('Name', 'Dark Distribution', 'Color', 'w', 'Units', 'pixels', ...
@@ -128,7 +127,7 @@ if plotFlag
     hold on;
     data_dark = darkAnalysis.darkCurrentMap(:);
     
-    histogram(data_dark, 100, 'Normalization', 'pdf', 'EdgeColor', 'none', 'FaceColor', [0 0.4470 0.7410]);
+    histogram(data_dark, 200, 'Normalization', 'pdf', 'EdgeColor', 'none');
     
     % Poisson Model
     lambda_total = meanDark * exposureTime; 
@@ -138,21 +137,21 @@ if plotFlag
     y_fit = y_prob * exposureTime;
     
     plot(x_rate, y_fit, 'r-', 'LineWidth', 3);
-    set(gca, 'YScale', 'log'); 
+    xlim([0, 0.01]);
+    % set(gca, 'YScale', 'log'); 
     %title(sprintf('Dark Current Distribution\n\\mu=%.7f ADU/s, \sigma=%.7f ADU/s, (Poisson Fit)', meanDark, stdDarkSpatial), ...
     %    'FontSize', mainFontSize);
 
-    title(sprintf('Dark Current Distribution\n\\mu=%.7f e-/s, \sigma=%.7f e-/s, (Poisson Fit)', meanDark, stdDarkSpatial), ...
+    title(sprintf('\\mu=%.7f e-/s, \\sigma=%.7f e-/s, (Poisson Fit)', meanDark, stdDarkSpatial), ...
         'FontSize', mainFontSize);
     xlabel('Dark Current (e-/s)', 'FontSize', mainFontSize); 
-    ylabel('Probability Density (Log)', 'FontSize', mainFontSize);
+    ylabel('Probability Density', 'FontSize', mainFontSize);
     legend({'Observed Data', 'Poisson Model'}, 'FontSize', mainFontSize, 'Location', 'best');
     set(gca, 'FontSize', mainFontSize);
     grid on;
     hold off;
 
-    fprintf('Exporting img/Dark_Distribution.png...\n');
-    exportgraphics(f2, fullfile('img', 'Dark_Distribution.png'), 'Resolution', 300);
+    exportgraphics(f2, fullfile('img', 'dark_current_distribution.png'), 'Resolution', 300);
 
     % --- FIGURE 3: Hot Pixel Map (Updated with Clusters) ---
     f3 = figure('Name', 'Hot Pixel Map', 'Color', 'w', 'Units', 'pixels', ...
@@ -166,13 +165,48 @@ if plotFlag
     imagesc(vizMap);
     % Custom colormap: Black (Normal), Green (Isolated), Red (Clustered)
     colormap(gca, [0 0 0; 0 1 0; 1 0 0]); 
+    % title(sprintf('Hot Pixel Clusters (Red=Clustered, Green=Isolated)'), 'FontSize', mainFontSize);
     
-    title(sprintf('Hot Pixel Clusters (Red=Clustered, Green=Isolated)'), 'FontSize', mainFontSize);
+    title(sprintf('Red=Clustered, Green=Isolated'), 'FontSize', mainFontSize);
     xlabel('Sensor X', 'FontSize', mainFontSize);
     set(gca, 'FontSize', mainFontSize);
     axis image;
 
-    fprintf('Exporting img/Dark_HotPixels.png...\n');
-    exportgraphics(f3, fullfile('img', 'Dark_HotPixels.png'), 'Resolution', 300);
+    exportgraphics(f3, fullfile('img', 'dark_hot_pixels.png'), 'Resolution', 300);
+
+    % --- FIGURE 3: Hot Pixel Map (VISIBILITY FIX) ---
+    f4 = figure('Name', 'Hot Pixel Map', 'Color', 'w', 'Units', 'pixels', ...
+        'Position', [200 200 figWidth figHeight]);
+    
+    hold on;
+    % Plot black background 
+    imagesc(ones(rows, cols));
+    colormap(gca, 'gray'); 
+    axis image; set(gca, 'YDir', 'reverse'); % Ensure correct image orientation
+    
+    % 2. Find coordinates for scatter plot
+    [y_iso, x_iso] = find(isIsolated);
+    [y_clst, x_clst] = find(isHotPixel & ~isIsolated); % Clustered are hot but not isolated
+    
+    if ~isempty(x_iso)
+        scatter(x_iso, y_iso, 30, [0 1 0], 'filled'); % Green for Isolated
+    end
+    if ~isempty(x_clst)
+        scatter(x_clst, y_clst, 30, [1 0 0], 'filled'); % Red for Clustered
+    end
+    
+    title(sprintf('Red=Clustered, Green=Isolated'), 'FontSize', mainFontSize);
+    xlabel('Sensor X', 'FontSize', mainFontSize);
+    ylabel('Sensor Y', 'FontSize', mainFontSize);
+    set(gca, 'FontSize', mainFontSize);
+    
+    % Force limits to match sensor size
+    xlim([1 cols]);
+    ylim([1 rows]);
+    hold off;
+
+   exportgraphics(f4, fullfile('img', 'dark_hot_pixels_big.png'), 'Resolution', 300);
+
+    
 end
 end
