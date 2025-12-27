@@ -89,10 +89,6 @@ where $d$ is distances of grooves, $\theta_m$ is a diffraction angle at which ma
 Multiple spectral orders can result in multiple wavelength interfering with each other (see \ref{img:spectral_orders}).
 As first spectral order of light with wavelength $\lambda$, will fall to the same spot as second order of wavelength $\lambda/2$
 
-% To get a good spectroscopic analysis, it is essential to have an accurate wavelength calibration. The level of accuracy needed in the calibration is usually achieved by using emission-line lamps, such as Thorium–Argon (ThAr) lamps, which provide a dense set of narrow spectral lines with well-known wavelengths. As described in \cite{Martinez2001}, ThAr lamps are very suitable for high-precision wavelength calibration due to their stability and line density.
-%
-% Even so, while the detailed matching of observed ThAr spectra to reference line lists is part of the data reduction process, an understanding of the underlying calibration principle is necessary when designing the observational protocol and interpreting the results.
-
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\columnwidth]{../img/spectral_orders.png}
@@ -117,7 +113,7 @@ Basic components of the spectrograph are an entrance slit or fiber, a collimator
 \begin{center}
 \begin{tabular}{|c||c|c|}
 \hline
-	 Spectral order & $\lambda_\mathrm{min}$ (A) & $\lambda_\mathrm{max}$ (A) \\
+	 Spectral order & $\lambda_\mathrm{min}$ ($\AA$) & $\lambda_\mathrm{max}$ ($\AA$) \\
 \hline
 	1 & 5100 & 9100 \\
 \hline
@@ -176,7 +172,8 @@ Understanding the physical operation of CCD detectors and their fundamental char
 
 \section{Noise Sources in CCD Detectors}
 
-Several independent noise sources affect measurements performed with CCD detectors. The main contributions are read noise, dark current noise, and photon (shot) noise. A clear understanding of the physical origin and statistical properties of these noise sources is essential for interpreting CCD data and for optimizing observational strategies.
+Several independent noise sources affect measurements performed with CCD detectors. The main contributions are read noise, dark current noise, and photon (shot) noise.
+A clear understanding of the physical origin and statistical properties of these noise sources is essential for interpreting CCD data and for optimizing observational strategies.
 
 Read noise is introduced during the electronic readout process of the CCD and is independent of the exposure time.
 It comes from multiple electronic components, such as the output amplifier, the charge-to-voltage conversion stage or the analog-to-digital converter.
@@ -242,20 +239,6 @@ F_{\text{norm}} = \frac{F_{\text{master}}}{\left\langle F_{\text{master}} \right
 \label{eq:flat_correction}
 \end{equation}
 
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=0.95\columnwidth]{../img/im10.jpg}
-% \caption{Mathematical calibration flow.}
-% \label{fig:im10}
-% \end{figure}
-%
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=0.95\columnwidth]{../img/im11.jpg}
-% \caption{Practical calibration workflow.}
-% \label{fig:im11}
-% \end{figure}
-
 \section{Bias Frame Analysis}
 
 15 bias frames were taken at lowest exposition time possible.
@@ -277,7 +260,7 @@ For master frame and stack of all bias frames basic statics were calculated as s
 \hline
 	Master frame & 600.15 & 1.18 \\
 \hline
-	All bias frames & 500.14 & 3.62 \\
+	All bias frames & 600.14 & 3.62 \\
 \hline
 \end{tabular}
 	\label{tab:zero}
@@ -349,11 +332,12 @@ As for statistical properties of the dark frames.
 Master dark frame exhibits a low standard deviation of 2.01~ADU, with average values of 1.89~ADU.
 Deviation calculated over all frames is 6.77~ADU, when transient events are excluded this drops to 6.02~ADU.
 Verifying if the measured data follow expected distribution is rather difficult.
-Shot noise from dark currents should exhibit Poisson distribution, however as it's variance is quite small -- that is comparable with one for readout noise -- it's difficult to separate both noises.
-While variance of read noise and master zero is known, this noise is still present in darks and cannot be just subtracted.
+Shot noise from dark currents should exhibit Poisson distribution, however as it's variance is quite small -- that is comparable with one for readout noise -- it's difficult to accurately separate both noises.
+While variance of read noise and master zero is known, this noise is still present in darks and cannot be easily subtracted.
 
-In order to express dark currents in accurate units $e^{-}s^{-1}$ gain value of $0.555\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in following chapters, was used.
-Using this gain mean dark current was $0.328\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.3487\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$
+In order to express dark currents in accurate units $e^{-}s^{-1}$ gain value of $0.6114\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in following chapters, was used.
+Using this gain mean dark current was $0.342\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.321\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$.
+It clearly holds that $\mu = \sigma = \lambda$ which is to be expected for Poisson statistical distribution.
 Distribution of dark current overlaid with Poisson distribution curve for calculated $\mu$ and $\sigma$ is showed on picture \ref{img:dark_distribution}.
 
 \begin{figure}[htbp]
@@ -585,6 +569,82 @@ For this reason a gain linearity (gain as a function of intensity) wasn't explor
 \caption{Model Local Gain}
 \label{img:model_local_gain}
 \end{figure}
+
+\section{Grating Position and Sensor Resolution}
+
+Last examined parameter of the Coudé spectrograph was to verify if documentation (see \cite{Ondrejov2m}) on relation between of central wavelength on grating orientation and resolution of the spectrograph was correct.
+For this purpose reference spectra of ThAr lamp were taken and compared against atlas of strong spectral lines of Thorium \cite{Palmer1952} and Argon \cite{Norlen19731201}.
+Automating this task proved to be rather complex -- for each frame resolution ($\AA\mathrm{px}^{-1}$) and central wavelength ($\AA$).
+If close to linear relationship between grating angle and central wavelength is to be expected than three variables must hold for each image -- slope ($\AA\mathrm{rad}^{-1}$), intercept point ($\AA$) and resolution ($\AA\mathrm{px}^{-1}$).
+
+Method based on geometric hashing was employed where first triples of peak were found within measured data and then atlas was searched for peak with same relative distances.
+For matches atlas was then scaled and offset (Also convolution with Gaussian function was applied to "spread" the lines a little bit.) and relative energy was calculated based on which parameter estimated was scored.
+However as some spectral lines weren't emitted from the 15~mA ThAr lamp at all and some spectral lines that were captured weren't in the atlas this method failed to find correct match.
+
+Lines were then matched manually on selected few pictures and output parameters.
+Those were found to generally correspond with those listed in the documentation -- tables \ref{tab:pos1} and \ref{tab:pos2}
+
+\begin{table}[htbp]
+	\caption{The Ranges of Exposed Spectra -- First Order\cite{Ondrejov2m}}
+\begin{center}
+\begin{tabular}{|c|c||c|c|}
+\hline
+Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
+\hline
+\hline
+	5321 &  35.78 &  8401.4 &  8869.9 \\
+\hline
+	5430 &  35.25 &  8197.2 &  8666.3 \\
+\hline
+	6382 &  30.62 &  6406.2 &  6878.6 \\
+\hline
+	6457 &  30.25 &  6263.5 &  6736.0 \\
+\hline
+	6943 &  27.88 &  5328.6 &  5801.4 \\
+\hline
+\end{tabular}
+	\label{tab:pos1}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+	\caption{The Ranges of Exposed Spectra -- Second Order\cite{Ondrejov2m}}
+\begin{center}
+\begin{tabular}{|c|c||c|c|}
+\hline
+Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
+\hline
+\hline
+	4712 & 38.75 & 4758.8 & 4991.1 \\
+\hline
+	5040 & 37.15 & 4459.9 & 4693.4 \\
+\hline
+	5242 & 36.17 & 4273.7 & 4507.7 \\
+\hline
+\end{tabular}
+	\label{tab:pos1}
+\end{center}
+\end{table}
+
+
+
+
+
+\section{Conclusion}
+
+Coudé spectrograph on Perek 2~m telescope exhibits quite good noise parameters and pixels are generally uniform.
+Read noise was measured at 3.62 ADU, and found to follow Gaussian distribution without any anomalies across sensor area.
+Mean dark current was $0.342\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.321\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$, thus it shouldn't pose a major problem in long exposure imaging even of relatively faint objects.
+Sensor also exhibited only a small number of hot pixels.
+
+Gain calculation proved to be problematic due to nature of the dataset used.
+Simple inter-frame methods didn't yield good results as only about tenth of the CCD range was covered by them.
+Intra-frame methods couldn't work due to nature of spectostrophic images where flatfields illumination is unequal.
+Lastly attempted was a residual method that estimated the gain at $g =0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$.
+However the model used in it was far from perfect and even with low uncertainty error of this method might be significant.
+
+
+
 
 \section*{Acknowledgment}
 
