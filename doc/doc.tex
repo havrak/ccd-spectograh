@@ -384,6 +384,7 @@ As the noise is statistically independent it's simply included in the sum, $\ove
 This equation is often modified for the purpose of numerical calculation as
 \begin{equation}
 	\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}.
+	\label{eq:numer_gain}
 \end{equation}
 This removes unnecessary step of calculating square root.
 
@@ -502,8 +503,10 @@ At 9 frames we have a noise reduction of just 67~\%.
 
 As this model is created for rather low ADU leves (at most around 6000), when scaled up remaining noise causes significant error.
 On image \ref{img:flat_model_10s} is the photon transfer curve when such a model is used.
-It's apparent that the model work really well for low values -- where the points follow the square root dependance rather well, however for larger values model breaks down.
-Models failure can also be demonstrated while on residual histograms (images \ref{img:flat_hist_10s_med} and \ref{img:flat_hist_10s_3rd}), where not only shape of the curve itself is wrong but also mean estimate isn't clearly correct.
+It's apparent that the model work really well for low values -- where the points follow the square root dependence rather well, however for larger values model breaks down as the remaining noise get's significant amplified in the scaling.
+Models failure can also be demonstrated best on residual histograms (images \ref{img:flat_hist_10s_med} and \ref{img:flat_hist_10s_3rd}), where not only shape of the curve itself is wrong but also mean estimate isn't clearly correct.
+
+% As the remaining noise in the model was quite large it was deemed unnecessary in trying to improve this model using dynamic correction methods.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -529,8 +532,59 @@ Models failure can also be demonstrated while on residual histograms (images \re
 \label{img:flat_hist_10s_3rd}
 \end{figure}
 
+It was also attempted to filter out the model as a 1D signal (going from top to bottom across the 512 px, and left to right).
+Since in horizontal direction changes in illumination should be quite smooth as we aren't going across different spectral lines and previous sections shown that deviations between pixels are small.
+However this approach didn't significantly improve the calculation.
 
+Due to the failure of the model based on most numerous exposure time an model based on mean of all flatfields was used.
+This model tackles higher values much better although still is far from perfect as due to datasets nature there are significantly less images for higher exposure times.
+So their noise contribution will be less suppressed and as their values are much higher they will sway the model estimate their way.
 
+Another step in processing is scaling the model to each flatfield level.
+This isn't particularly complicated as flatfields energy raises rather linearly with exposure time as seem on picture \ref{img:exposure_time}.
+Only minor departure from the straightforward approach was to filter out pixels that aren't illuminated when finding the scaling coefficient - as those would drag down the model and lead to bad mean estimates.
+In the model itself these inilluminated parts are also zeroed so that after scaling them the values don't rise, same way they don't rise in the real flatfields for longer exposures.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/exposure_time.png}
+	\end{center}
+\caption{Flatfield Levels vs Exposure Time, Different Illuminations}
+\label{img:exposure_time}
+\end{figure}
+
+After model is scaled residual from it are calculated and stored.
+In following step stratified sampling is applied to the points -- this lowers data count from some $\approx 12$ million to $2$ and doesn't introduce any measurable error.
+This sampling just splits measured data into bins according to their signal level and in each bin takes a random subset of point.
+Stratified sampling is necessary as the distribution of data points between bins is far from uniform.
+
+Following startified sampling outlier rejection using MAD is applied.
+Then in the cleaned data equation \ref{eq:numer_gain} is fitten in and the gain is calculated, while read noise is fixed to the value calculated from zero frame analysis.
+
+A gain value of $g =0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$ was estimated using this method.
+This gives a following photon transfer curve \ref{img:model_photon_transfer_curve}.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/model_photon_transfer_curve.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Residual Analysis}
+\label{img:model_photon_transfer_curve}
+\end{figure}
+
+Still it must be said that the dataset is fundamentally flawed and much denser dataset with more uniform distribution of exposure times might give different results.
+Plot \ref{img:model_local_gain} shows the gain value calculated for each signal level individually.
+A simpler equation of $\sigma^2 = \overline{x}/g + \sigma^2_\mathrm{ro}$ was used combined with low number of data in each bin straight line cannot be even expected, but it's clear that the gain estimation is still problematic.
+This is despite overall good confidence interval the model when overlaying the function across all data.
+For this reason a gain linearity (gain as a function of intensity) wasn't explored at all.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{../img/model_instantaneous_gain.png}
+	\end{center}
+\caption{Model Local Gain}
+\label{img:model_local_gain}
+\end{figure}
 
 \section*{Acknowledgment}
 

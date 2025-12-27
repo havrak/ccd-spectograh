@@ -5,10 +5,10 @@ function gainResults = analyzeFlatfieldsPixelModel(folder, zeroResults, darkResu
 % 3. Calculate residuals (Actual - Model).
 % 4. Analyze Variance of residuals vs Signal to determine Gain.
 
-BIN_SETTINGS.numBins      = 300;   % Bins for the final PTC plot
-BIN_SETTINGS.minPoints    = 50;    % Min points to trust a final bin
+BIN_SETTINGS.numBins      = 1000;   % Bins for the final PTC plot
+BIN_SETTINGS.minPoints    = 100;    % Min points to trust a final bin
 BIN_SETTINGS.outlierSigma = 2.5;   % Outlier rejection strictness
-BIN_SETTINGS.maxADU       = 55000; % Saturation cutoff
+BIN_SETTINGS.maxADU       =45000; % Saturation cutoff
 
 % Sampling Settings (Per Image)
 SAMPLE.numLevels     = 500;  % How many intensity levels to split each image into
@@ -70,44 +70,66 @@ for f = 1:length(fibKeys)
 
     % --- Step 2a: Find "Reference" Exposure for this Fibre ---
     % We want the exposure time that has the MOST frames to average out noise.
-    expTimes = [fileData(indices).exposure];
-    uniqueExps = unique(expTimes);
-    counts = histcounts(expTimes, [uniqueExps, max(uniqueExps)+1]);
+    % expTimes = [fileData(indices).exposure];
+    % uniqueExps = unique(expTimes);
+    % counts = histcounts(expTimes, [uniqueExps, max(uniqueExps)+1]);
+    %
+    % [~, bestIdx] = max(counts);
+    % refExpTime = uniqueExps(bestIdx);
+    %
+    % % Find indices of these reference frames
+    % refIndices = indices(expTimes == refExpTime);
+    %
+    % fprintf('  Fibre %s: Using %d frames at %.2fs as reference model.\n', ...
+    %     key, length(refIndices), refExpTime);
+    %
+    % % -- Step 2b: Create Master Reference Frame ---
+    % refStack = [];
+    % for k = 1:length(refIndices)
+    %     refStack(:,:,k) = loadImg(fileData(refIndices(k)).path);
+    % end
 
-    [~, bestIdx] = max(counts);
-    refExpTime = uniqueExps(bestIdx);
 
-    % Find indices of these reference frames
-    refIndices = indices(expTimes == refExpTime);
-
-    fprintf('  Fibre %s: Using %d frames at %.2fs as reference model.\n', ...
-        key, length(refIndices), refExpTime);
-
-    % -- Step 2b: Create Master Reference Frame ---
+    % --- Step 2a: Create Master Reference Frame ---
     refStack = [];
-    for k = 1:length(refIndices)
-        refStack(:,:,k) = loadImg(fileData(refIndices(k)).path);
+    for k = 1:length(indices) % use all frames to calculate the mean
+        refStack(:,:,k) = loadImg(fileData(indices(k)).path);
     end
 
 
-    % --- Step 2b: Create Master Reference Frame ---
-    %refStack = [];
-    %for k = 1:length(indices) % use all frames to calculate the mean
-    %    refStack(:,:,k) = loadImg(fileData(indices(k)).path);
-    %end
-
-
-    % Calculate the "Pattern" (normalized model)
-    % We normalize by the mean of the master model so scaling factors are intuitive
+    % Calculate the Pattern (normalized model)
     masterModel = double(mean(refStack, 3));
+    masterModel(masterModel < zeroResults.globalReadNoise*5 ) = 0; % nuke non illuminated pixels that would than get scaled
 
     meanRef = mean(masterModel(:));
     normalizedPattern = masterModel ./ meanRef;
 
-    % --- Step 2c: Calculate Residuals for ALL frames in this group ---
+    % --- Step 2b: Calculate Residuals for ALL frames in this group ---
     for k = 1:length(indices)
         idx = indices(k);
         img = double(loadImg(fileData(idx).path));
+
+        % NEW: Regress the Image against the Pattern (Fit the Scale Factor)
+        % We only fit pixels that are part of the signal (masking the dark background)
+        % This prevents background noise/bias from skewing the scaling factor.
+
+        fitMask = normalizedPattern > zeroResults.globalReadNoise*5/ meanRef; % Use only illuminated features
+
+        if sum(fitMask(:)) > 100
+            % Solve linear equation: img = scaleFactor * pattern
+            % The '\' operator performs robust least-squares regression
+         ratios = img(fitMask) ./ normalizedPattern(fitMask);
+             
+             % The Scaling Factor is the Median of these ratios.
+             % This is immune to background drifts and outliers.
+             scaleFactor = median(ratios);
+        else
+            % Fallback for empty/dark frames
+            scaleFactor = mean(img(:));
+        end
+
+        % Create Prediction using the fitted scalar
+        prediction = normalizedPattern .* scaleFactor;
 
         % 1. Determine Scale Factor based on MEAN INTENSITY
         currentMean = mean(img(:));
@@ -117,9 +139,6 @@ for f = 1:length(fibKeys)
         globalExps  = [globalExps; fileData(idx).exposure];
         globalFibreIdx = [globalFibreIdx; f];
 
-        % 2. Create Prediction for this specific frame
-        % Prediction = Pattern * CurrentMean
-        prediction = normalizedPattern .* currentMean;
 
         % 3. Calculate Residual
         residual = img - prediction;
@@ -154,9 +173,9 @@ fprintf('Analyzing %d points...\n', numel(allSignals));
 allResiduals = allResiduals(sortIdx);
 
 binEdges = linspace(min(allSignals), max(allSignals), BIN_SETTINGS.numBins+1);
-binMeans = [];
-binVars  = []; % This will hold Mean Squared Residuals
-binStds  = []; % RMS of Residuals
+binnedSignals = [];
+binnedVars  = []; % This will hold Mean Squared Residuals
+binnedStds  = []; % RMS of Residuals
 
 for b = 1:BIN_SETTINGS.numBins
     % 1. Isolate data in this signal range
@@ -178,10 +197,6 @@ for b = 1:BIN_SETTINGS.numBins
     cleanResids = resids(validMask);
     cleanSigs   = sigs(validMask);
 
-    %binMeans = [binMeans; cleanSigs];
-    %binVars  = [binVars; cleanResids.^2];
-    %binStds  = [binStds; cleanResids];
-
     %if isempty(cleanResids), continue; end
 
     % 3. Calculate "Real" Deviance Statistics
@@ -191,10 +206,12 @@ for b = 1:BIN_SETTINGS.numBins
     meanSqResid = mean(cleanResids.^2); % Pure Variance (E[x^2])
     rmsResid    = sqrt(meanSqResid);    % Pure Noise (RMS)
 
-    binMeans = [binMeans; mean(cleanSigs)];
-    binVars  = [binVars; meanSqResid];
-    binStds  = [binStds; rmsResid];
+    binnedSignals = [binnedSignals; mean(cleanSigs)];
+    binnedVars  = [binnedVars; meanSqResid];
+    binnedStds  = [binnedStds; rmsResid];
 end
+
+fprintf("Fitting into %.0f points\n", length(binnedSignals));
 
 % ---------------------------------------------------------
 % STAGE 4: FITTING GAIN
@@ -206,12 +223,13 @@ end
 % m = 1/Gain
 % c = ReadNoise^2 (We can fix this or let it float. Let's fix it for robustness)
 
-localGain = binMeans ./ (binVars - rnSquared);
+% var = signal/gain + readNoise
+localGain = binnedSignals ./ (binnedVars - rnSquared);
 
 % --- Polyfit of whole function ---
 fprintf('Fitting full noise model...\n');
-X = binMeans;
-Y = binVars;
+X = binnedSignals;
+Y = binnedVars;
 
 g0 = 1.0;
 rn0 = zeroResults.globalReadNoise;
@@ -309,16 +327,15 @@ avgShutterOffset = median(shutterOffsets);
 
 figWidth = 1000;
 figHeight = 800;
-mainFontSize = 18; % Large font to remain readable when image is resized small
-
+mainFontSize = 18;
 
 
 
 f1 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
     'Position', [100 100 figWidth figHeight]);
-scatter(binMeans, binStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
+scatter(binnedSignals, binnedStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
 hold on;
-xFit = linspace(0, max(binMeans), 200);
+xFit = linspace(0, max(binnedSignals), 200);
 yFit = sqrt(modelFun(p_opt, xFit));
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 plot(xFit, sqrt(xFit ./ gainVal), 'b:', 'LineWidth', 1.5);
@@ -326,32 +343,32 @@ xlabel('Signal (ADU)'); ylabel('Noise \sigma (ADU)');
 %title('Photon Transfer Curve');
 set(gca, 'FontSize', mainFontSize);
 grid on;
-legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'best');
+legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'southeast');
 exportgraphics(f1, fullfile('img', 'model_photon_transfer_curve.png'), 'Resolution', 300);
 
 figure(); clf;
-t = tiledlayout(3, 2, 'TileSpacing', 'compact');
+t = tiledlayout(2, 2, 'TileSpacing', 'compact');
 title(t, sprintf('Gain Analysis (Residual Method) | Est. Gain: %.3f e-/ADU', gainVal));
 
 % --- PLOT 0: Noise Fit ---
 nexttile;
-scatter(binMeans, binStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
+scatter(binnedSignals, binnedStds, 15, 'k', 'filled', 'MarkerFaceAlpha', 0.5);
 hold on;
-xFit = linspace(0, max(binMeans), 200);
+xFit = linspace(0, max(binnedSignals), 200);
 yFit = sqrt(modelFun(p_opt, xFit));
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
 plot(xFit, sqrt(xFit ./ gainVal), 'b:', 'LineWidth', 1.5);
 xlabel('Signal (ADU)'); ylabel('Noise \sigma (ADU)');
 title('Photon Transfer Curve');
-grid on; legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'best');
+grid on; legend('Data', sprintf('Fit (G=%.4f)', gainVal), 'Shot Noise Only', 'Location', 'southeast');
 
 
 % --- PLOT 1: Photon Transfer Curve ---
 nexttile;
-scatter(binMeans, binVars, 10, 'k', 'filled');
+scatter(binnedSignals, binnedVars, 10, 'k', 'filled');
 hold on;
 % Plot Fit
-xFit = linspace(0, max(binMeans), 100);
+xFit = linspace(0, max(binnedSignals), 100);
 yFit = (1/gainVal) * xFit + rnSquared;
 plot(xFit, yFit, 'r-', 'LineWidth', 1.5);
 xlabel('Signal (ADU)');
@@ -362,7 +379,7 @@ legend('Binned Data', 'Gain Fit');
 
 % --- PLOT 2: Gain vs Signal (Linearity) ---
 nexttile;
-plot(binMeans, localGain, 'b.-');
+plot(binnedSignals, localGain, 'b.-');
 hold on;
 yline(gainVal, 'r--', 'LineWidth', 2);
 xlabel('Signal Intensity (ADU)');
@@ -478,6 +495,53 @@ set(gca, 'FontSize', mainFontSize);
 exportgraphics(f3, fullfile('img', 'model_histogram_3qar.png'), 'Resolution', 300);
 
 
+f4 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
+colors = lines(length(fibKeys));
+
+hold on;
+for f = 1:length(fibKeys)
+    % Extract data for this fiber
+    fIdx = globalFibreIdx == f;
+    fExps = globalExps(fIdx);
+    fMeans = globalMeans(fIdx);
+
+    % 1. Plot RAW data as discrete dots (no connecting lines)
+    scatter(fExps, fMeans, 20, colors(f,:), 'filled', 'MarkerFaceAlpha', 0.6);
+
+    % 2. Calculate average mean for each unique exposure time
+    uniExps = unique(fExps);
+    avgMeans = zeros(size(uniExps));
+    for u = 1:length(uniExps)
+        avgMeans(u) = mean(fMeans(fExps == uniExps(u)));
+    end
+
+    % 3. Plot the TREND line through the averages
+    [sExp, sI] = sort(uniExps);
+    plot(sExp, avgMeans(sI), '-', 'Color', colors(f,:), 'LineWidth', 1.5);
+end
+
+xlabel('Exposure Time (s)');
+ylabel('Mean Signal (ADU)');
+title(sprintf('Offset \\approx %.3fs', avgShutterOffset));
+grid on;
+
+set(gca, 'FontSize', mainFontSize);
+exportgraphics(f4, fullfile('img', 'exposure_time.png'), 'Resolution', 300);
+
+f5 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
+    'Position', [100 100 figWidth figHeight]);
+ plot(binnedSignals, localGain, 'b.-');
+hold on;
+yline(gainVal, 'r--', 'LineWidth', 2);
+xlabel('Signal Intensity (ADU)');
+ylabel('Instantaneous Gain (e-/ADU)');
+grid on;
+ylim([0, gainVal*2]); % Zoom in relevant area
+legend('Calculated Gain per Bin', 'Global Fit Gain');
+
+set(gca, 'FontSize', mainFontSize);
+exportgraphics(f5, fullfile('img', 'model_instantaneous_gain.png'), 'Resolution', 300);
 
 % ---------------------------------------------------------
 % RETURN

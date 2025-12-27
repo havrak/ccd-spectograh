@@ -3,3 +3,11 @@ excluded/
 doc/_minted
 _minted
 *.asv
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.mmz
+

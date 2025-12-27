@@ -14,6 +14,6 @@ darkResults = analyzeDarks("data/dark/", zeroResults, 0.555, 0);
 % analyzeFlatfieldsInterFrameModel("data/flatfield_one_conf/", zeroResults);
 
 
-%testus("data/flatfield_whole/", zeroResults);
-
+% testus("data/flatfield_whole/", zeroResults);
 analyzeFlatfieldsPixelModel("data/flatfield_whole/", zeroResults);
+% analyzeFlatfieldsPixelModel("data/flatfield_one_conf/", zeroResults);
