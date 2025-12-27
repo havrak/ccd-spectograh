@@ -37,7 +37,7 @@ martin.jelinek@asu.cas.cz}
 \maketitle
 
 \begin{abstract}
-Following paper concerns itself with analysis of parameters of a coudé CCD 700~mm spectrograph connected to a Perek 2 meter optical telescope in Ondřejov Observatory. Analysis of zeros, darks and flatfields was done in order to estimate noise parameters, pixels uniformity and sensors gain.
+Following paper concerns itself with analysis of parameters of a coudé CCD 700~mm spectrograph connected to a Perek 2 meter optical telescope in Ondřejov Observatory. Analysis of zeros, darks and flat-fields was done in order to estimate noise parameters, pixels uniformity and sensors gain.
 \end{abstract}
 
 \section{Introduction}
@@ -148,8 +148,9 @@ For calibration a Thorium-Argon reference lamp is installed and driven at 15~mA 
 Charge-Couple Devices are widely used in astronomical spectroscopy since they are well suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements.
 This is because of their properties, which include high quantum efficiency, linear response over a wide dynamic range and relatively low noise characteristics.
 And as opposed to CMOS sensor they offer more consistency between pixels as pixels share a read out circuitry.
+Thus CCD senors often exhibit lesser fixed pattern than CMOS detectors.
 
-The operating mode of these devices is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect.
+The basic operating principle is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect.
 This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency.
 The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time.
 Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector, amplified and read out using ADC \cite{Moore2014}.
@@ -210,13 +211,7 @@ The way to reduce its relative impact would be by increasing the signal level wh
 Finally, these different noise sources must be considered together.
 Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions:
 \begin{equation}
-\sigma_{\text{total}}^{2}
-=
-\sigma_{\text{read}}^{2}
-+
-\sigma_{\text{dark}}^{2}
-+
-\sigma_{\text{shot}}^{2}.
+\sigma_{\text{total}}^{2} = \sigma_{\text{read}}^{2} + \sigma_{\text{dark}}^{2} + \sigma_{\text{shot}}^{2}.
 \label{eq:total_noise}
 \end{equation}
 This expression provides a practical framework for evaluating detector performance and for optimizing exposure times in spectroscopic observations \cite{Martinez2001, Moore2014}.
@@ -224,26 +219,23 @@ Understanding which noise source dominates under given observational conditions 
 
 \section{Calibration Frames}
 
-Calibration frames are required in any configuration of the CCD detectors since there are instrumental effects present in CCD data. These different types of calibration frames are essential to separate the true astronomical signal from the detector and instrumental related contributions. Different contributions are needed to address different aspects of the detector response. The most used ones are bias frames, dark frames and flat-field frames.
+Different types of calibration frames are essential to estimate sensors properties and separate the true astronomical signal from the detector and instrumental related contributions.
+The most used ones are bias (zero) frames, dark frames and flat-field frames.
 
-Going into more depth of these types of calibration frames, bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector. Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level and readout fluctuations. As stated in \cite{Moore2014}, by combining multiple bias frames, a master bias frame can be constructed and subsequently subtracted from all other images to remove this electronic offset. This is represented as:
+Bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector.
+Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level (fixed pattern) and readout fluctuations.
+As stated in, by combining multiple bias frames, a master bias frame can be constructed.
+This frame is  subsequently subtracted from all other images to remove any sensors fixed pattern \cite{Moore2014}.
 
-\begin{equation}
-I_{\text{bias-corrected}} = I_{\text{raw}} - B_{\text{master}}.
-\label{eq:bias_subtraction}
-\end{equation}
+Dark frames are acquired with the same exposure time and detector temperature as the science observations but without any incident light.
+They are used to characterize the dark current and its associated noise.
+The accumulated dark signal increases linearly with exposure time and depends strongly on detector temperature.
+Dark frames can also capture fixed-pattern components of the dark signal, such as hot pixels. These can be removed by subtracting a master dark frame from the data \cite{Martinez2001}.
 
-Next, dark frames are acquired with the same exposure time and detector temperature as the science observations but without any incident light. They are used to characterize the dark current and its associated noise. The accumulated dark signal increases linearly with exposure time and depends strongly on detector temperature. From \cite{Martinez2001}, dark frames can also capture fixed-pattern components of the dark signal, such as hot pixels. These can be removed by subtracting a master dark frame from the data.
-
-Finally, flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients across the detector. In perfect conditions, flat-field frames would require a uniform illumination of the CCD, but in practice, this perfect uniformity is next to impossible to achieve. In fiber-fed spectrographs, variations in fiber positioning or illumination can introduce additional gradients in the flat-field images. As stated in \cite{Martinez2001}, these effects must be carefully accounted for during calibration to avoid introducing systematic errors into the corrected spectra. They are corrected following the next equation:
-
-\begin{equation}
-I_{\text{flat-corrected}} =
-\frac{I_{\text{raw}} - B_{\text{master}} - D_{\text{master}}}{F_{\text{norm}}},
-\quad
-F_{\text{norm}} = \frac{F_{\text{master}}}{\left\langle F_{\text{master}} \right\rangle}.
-\label{eq:flat_correction}
-\end{equation}
+Flat-field frames are used to correct for pixel-to-pixel sensitivity variations, large-scale illumination gradients across the detector and estimate sensors gain.
+Usually a uniform illumination of the sensor is required to ascertain these parameters.
+However due to inherent nature of spectrographs, light is decomposed to its constituent wavelength, such uniform illumination is impossible to achieve \cite{Robertson_2021}.
+This imposes large complications on flat-field analysis.
 
 \section{Bias Frame Analysis}
 
@@ -378,14 +370,14 @@ This equation is often modified for the purpose of numerical calculation as
 \end{equation}
 This removes unnecessary step of calculating square root.
 
-In non where sensor installation can enable a uniforma flatfields illumination good gain estimate can be made from just a couple of images\cite{irafGain}.
+In non where sensor installation can enable a uniforma flat-fields illumination good gain estimate can be made from just a couple of images\cite{irafGain}.
 Variances can also be calculated easily across different pixels - if their properties are similar.
 Coulde spectrograph in Ondřejov however doesn't allow an easy modification to the structure to ensure uniform illumination of the sensor.
 Incoming light thus still comes through the spectral dispersive grating and different parts of spectrograph are then illuminated with different light intensities and at different wavelength.
 As the light source doesn't have an constant spectrum illumination will thus be strictly uniform.
 In addition but a small part of the sensor is actually illuminated -- there are two thin strips each for one of two optical fibres brining light to the sensor, while most of the sensor area is unilluminated.
 
-\subsection{Inter-Frame Flatfield Analysis}
+\subsection{Inter-Frame Flat-field Analysis}
 
 First tested approach to calculate gain was based on calculating variances and means for groups of images of a same exposure time.
 Variances were thus calculated not over groups of multiple pixels but for each pixel independently as guided by \cite{Robertson_2021}.
@@ -418,7 +410,7 @@ There's especially a visible trend of median deviator values at low ADU levels i
 Or it's also possible that fibre alignment wasn't as steady as it should be and spectral lines were slightly shifted between images.
 
 
-\subsection{Spatial Flatfield Analysis}
+\subsection{Spatial Flat-field Analysis}
 
 As at least pixels properties a are relatively constant in the sensor it was attempted to estimate gain while calculating statistical properties within individual pictures.
 In X axis are separated different wavelength it wouldn't be correct to group pixels in this direction.
@@ -429,7 +421,7 @@ However as shown on table \ref{tab:spatial_flat} gain value changes significantl
 And even when visualizing binned data it's clear that the trend isn't there \ref{img:flat_spatial_robust}.
 
 \begin{table}[htbp]
-\caption{Spatial Flatfield Analysis Gain Estimates}
+\caption{Spatial Flat-field Analysis Gain Estimates}
 \begin{center}
 \begin{tabular}{|c|c|}
 \hline
@@ -457,7 +449,7 @@ And even when visualizing binned data it's clear that the trend isn't there \ref
 \label{img:flat_spatial_robust}
 \end{figure}
 
-\subsection{Residual Flatfield Analysis}
+\subsection{Residual Flat-field Analysis}
 
 Upon mentors suggestion residual analysis method for gain estimation was attempted.
 Instead of calculating variance between real values, be it between two images or from bins, model is first created that is close to free from noise and variance from this model is then calculated.
@@ -526,20 +518,20 @@ It was also attempted to filter out the model as a 1D signal (going from top to 
 Since in horizontal direction changes in illumination should be quite smooth as we aren't going across different spectral lines and previous sections shown that deviations between pixels are small.
 However this approach didn't significantly improve the calculation.
 
-Due to the failure of the model based on most numerous exposure time an model based on mean of all flatfields was used.
+Due to the failure of the model based on most numerous exposure time an model based on mean of all flat-fields was used.
 This model tackles higher values much better although still is far from perfect as due to datasets nature there are significantly less images for higher exposure times.
 So their noise contribution will be less suppressed and as their values are much higher they will sway the model estimate their way.
 
-Another step in processing is scaling the model to each flatfield level.
-This isn't particularly complicated as flatfields energy raises rather linearly with exposure time as seem on picture \ref{img:exposure_time}.
+Another step in processing is scaling the model to each flat-field level.
+This isn't particularly complicated as flat-fields energy raises rather linearly with exposure time as seem on picture \ref{img:exposure_time}.
 Only minor departure from the straightforward approach was to filter out pixels that aren't illuminated when finding the scaling coefficient - as those would drag down the model and lead to bad mean estimates.
-In the model itself these inilluminated parts are also zeroed so that after scaling them the values don't rise, same way they don't rise in the real flatfields for longer exposures.
+In the model itself these inilluminated parts are also zeroed so that after scaling them the values don't rise, same way they don't rise in the real flat-fields for longer exposures.
 
 \begin{figure}[htbp]
 	\begin{center}
 		\includegraphics[width=0.4\textwidth]{../img/exposure_time.png}
 	\end{center}
-\caption{Flatfield Levels vs Exposure Time, Different Illuminations}
+\caption{Flat-field Levels vs Exposure Time, Different Illuminations}
 \label{img:exposure_time}
 \end{figure}
 
@@ -645,7 +637,7 @@ Sensor also exhibited only a small number of hot pixels.
 
 Gain calculation proved to be problematic due to nature of the dataset used.
 Simple inter-frame methods didn't yield good results as only about tenth of the CCD range was covered by them.
-Intra-frame methods couldn't work due to nature of spectostrophic images where flatfields illumination is unequal.
+Intra-frame methods couldn't work due to nature of spectostrophic images where flat-fields illumination is unequal.
 Lastly attempted was a residual method that estimated the gain at $g =0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$.
 However the model used in it was far from perfect and even with low uncertainty error of this method might be significant.
 
