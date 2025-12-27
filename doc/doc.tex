@@ -37,16 +37,21 @@ martin.jelinek@asu.cas.cz}
 \maketitle
 
 \begin{abstract}
-Following paper concerns itself with a process of measuring and calculating parameters of a Cloude CCD spectrograph connected to a Perek 2 meter optical telescope. Measured properties were readout noise, dark current behavior and lastly gain.
+Following paper concerns itself with analysis of parameters of a coudé CCD 700~mm spectrograph connected to a Perek 2 meter optical telescope in Ondřejov Observatory. Analysis of zeros, darks and flatfields was done in order to estimate noise parameters, pixels uniformity and sensors gain.
 \end{abstract}
 
 \section{Introduction}
 
-One of the primary tools used to investigate the physical properties of celestial objects is astronomical spectroscopy. This carries out a process that enables the determination of stellar temperatures, chemical composition, radial velocities and other fundamental parameters by dispersing incoming light into its constituent wavelengths. Nowadays, modern spectroscopic observations rely on large-aperture telescopes which are combined with sensitive CCD detectors and stable spectrographs.
+One of the primary tools used to investigate the physical properties of celestial objects is astronomical spectroscopy.
+This carries out a process that enables the determination of stellar temperatures, chemical composition, radial velocities and other fundamental parameters by dispersing incoming light into its constituent wavelengths.
+Nowadays, modern spectroscopic observations rely on large-aperture telescopes which are combined with sensitive CCD detectors and stable spectrographs.
 
-As emphasized by Martinez et al. in A Practical Guide to CCD Astronomy, the scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}. Similarly, Lessons from the Masters highlights that accurate spectroscopic measurements require careful instrument characterization and calibration before any scientific interpretation can be performed \cite{Moore2014}.
+As emphasized by Martinez et al. in A Practical Guide to CCD Astronomy, the scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}.
+Similarly, Lessons from the Masters highlights that accurate spectroscopic measurements require careful instrument characterization and calibration before any scientific interpretation can be performed \cite{Moore2014}.
 
-This protocol describes the instrumental setup and theoretical background relevant to spectroscopic observations carried out with the Ondřejov 2-m telescope. Particular emphasis is placed on the principles of spectrograph operation, CCD detector characteristics, and the main noise sources affecting the acquired data. This theoretical foundation provides the basis for the data reduction and analysis steps described in later sections.
+In it's beginning this protocol describes the instrumental setup and theoretical background relevant to spectroscopic observations carried out with the Ondřejov 2-m telescope.
+Particular emphasis is placed on the principles of spectrograph operation, CCD detector characteristics, and the main noise sources affecting the acquired data.
+This theoretical foundation provides the basis for the data reduction and analysis steps described in later sections.
 
 
 \section{Perek 2~m Telescope}
@@ -54,12 +59,11 @@ This protocol describes the instrumental setup and theoretical background releva
 The Perek 2~m telescope (see \ref{fig:perek}), operated by the Astronomical Institute of the Czech Academy of Sciences, is built as a classical Coudé reflector with a 2~m primary mirror.
 The telescope provides a combination of high light-gathering power and mechanical stability, making it well suited for high-resolution spectroscopic observations of relatively faint astronomical targets \cite{Ondrejov2m}.
 
-In Coudé configuration incoming light is reflected from the primary mirror onto the secondary which then reflects it with flat mirrors into a coudé focus \ref{fig:layout_telescope}.
-From the telescope three optical fibres bring the light to two different spectrographs -- an echelle spectrograph and a single order spectrograph with focal length of 700~mm (referred to as coude spectrograph), on which this paper is focused.
+In Coudé configuration incoming light is reflected from the primary mirror onto the secondary which then reflects it with flat mirrors into a Coudé focus \ref{fig:layout_telescope}.
+From the telescope three optical fibres bring the light to two different spectrographs -- an echelle spectrograph and a single order spectrograph with focal length of 700~mm (referred to as Coudé spectrograph), which is the focus of this paper.
 
-This telescope is equipped with accurate guiding and tracking systems, which are essential for spectroscopic observations performed with narrow entrance slits or optical fibers.
-The systems implemented in the Ondřejov 2-m telescope ensure stable target positioning during long exposures.
-Guiding errors can directly lead to reduced signal-to-noise ratio or artificial broadening of spectral features, directly  affecting the quality of the recorded spectra \cite{Moore2014}.
+The telescope is equipped with accurate guiding and tracking systems.
+This is essential for in order o prevent blurring on long exposures when narrow entrance slits or optical fibers.
 
 \begin{figure}[htbp]
 \centering
@@ -79,37 +83,35 @@ Guiding errors can directly lead to reduced signal-to-noise ratio or artificial 
 
 Spectrograph is an optical instrument designed in a way that incoming light is dispersed into its different wavelength components.
 In the field of scientific spectrographs, this kind of dispersion is achieved by using a diffraction grating.
-Grating is a prism with hundreds of grooves that act in a similar matter to a two slit experiment -- it exploits constructive interference creating a maxima and minima for each wavelength.
-A
-Different wavelength get reflected with different angles where following equation must be satisfied.
+Grating is a prism with hundreds of grooves that acts in a similar matter to a two slit experiment -- it exploits constructive interference creating a maxima and minima for each wavelength.
+Different wavelength get diffracted with different angles, for which following equation must be satisfied
 \begin{equation}
 	d \sin \theta_m = m \lambda,
 \end{equation}
-where $d$ is distances of grooves, $\theta_m$ is a diffraction angle at which maxima occurs, $\lambda$ is lights wavelength and $m$ is a integer denoting spectral order.
-Multiple spectral orders can result in multiple wavelength interfering with each other (see \ref{img:spectral_orders}).
-As first spectral order of light with wavelength $\lambda$, will fall to the same spot as second order of wavelength $\lambda/2$
+where $d$ is the distance of grooves, $\theta_m$ is a diffraction angle at which maxima occurs, $\lambda$ is lights wavelength and $m$ is a integer denoting spectral order.
+Spectral orders can result in multiple wavelength interfering with each other (see \ref{img:spectral_orders}).
+For example first spectral order of light with wavelength $\lambda$, will fall to the same spot as second order of wavelength $\lambda/2$ \cite{tau_hydrogen_2018}.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\columnwidth]{../img/spectral_orders.png}
-\caption{Diffraction orders produced by a grating for multiple wavelengths}
+\caption{Diffraction orders produced by a grating for multiple wavelengths \cite{tau_hydrogen_2018}}
 \label{img:spectral_orders}
 \end{figure}
 
-In order to prevent interference multiple different approaches can be used.
-Echelle type spectrographs use cross-dispersing element to spatially separate diffraction orders on the detector -- this enables them to measure very wide spectrum in a single image.
+In order to prevent interference between spectral orders multiple different constructions can be used.
+Echelle type spectrographs use cross-dispersing element to spatially separate diffraction orders on the detector -- this enables them to measure very wide spectrum in a single image \cite{Eversberg2015}.
 A simpler approach is to use filters to block out light of wavelength that would interfere with the observation.
-Or do observation in an order where possible interfering wavelength fall bellow capabilities of the CCD detector or the optical system itself.
+It's also possible to do observation in an order where possible interfering wavelengths fall bellow capabilities of the CCD detector or the optical system itself.
 Coudé spectrograph connected to Perek telescope employs both approaches \cite{Ondrejov2mCZ}.
 
-\section{Coude Spectrograph}
+\section{Coudé Spectrograph}
 
-
-The coudé spectrograph at the Ondřejov Observatory operates as a single order spectrograph operating either in first or second order depending on what range of wavelengths is observed \ref{tab:spec_orders}.
+The coudé spectrograph at the Ondřejov Observatory operates as a single order spectrograph operating either in the first or the second order depending on what range of wavelengths is being observed \ref{tab:spec_orders}.
 Basic components of the spectrograph are an entrance slit or fiber, a collimator, a dispersive element, a camera system and a detector, as seen on picture \ref{img:layout_spectograph}.
 
 \begin{table}[htbp]
-\caption{Spatial Flatfield Analysis Gain Estimates}
+\caption{Coudé Spectrograph Operating Range}
 \begin{center}
 \begin{tabular}{|c||c|c|}
 \hline
@@ -125,45 +127,46 @@ Basic components of the spectrograph are an entrance slit or fiber, a collimator
 \end{table}
 
 Light that enters the spectrograph through the slit or optical fiber, collimating into a parallel beam.
-In this beam, the diffraction grating is encountered, which separates the light according to wavelength.
-Next, the dispersed light is subsequently focused onto the CCD detector by camera optics, where the spectrum is recorded.
-This final assembly froms a Schmidt camera with focal length of 700~mm.
+Beam then encounters the diffraction grating is encountered, which separates the light according to wavelength.
+Next the dispersed light is focused onto the CCD detector by Schmidt camera optics, where the spectrum is recorded.
+Schmidt camera is used as to prevent distortion of the spectrum towards edges of the sensor.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{../img/schema_coude_spec.png}
-	\caption{Optical layout of a coudé spectrograph\cite{Ondrejov2m}}
+	\caption{Optical layout of a Coudé spectrograph\cite{Ondrejov2m}}
 \label{img:layout_spectograph}
 \end{figure}
 
 A PyLoN eXcelon type of CCD assembly is used with chip E2V 42-10 BX.
 The chip is cooled using liquid nitrogen to operating temperature of -115°C.
-For calibration a Thorium-Argon reference lamp is installed and driveen at 15~mA \cite{Ondrejov2m}.
+For calibration a Thorium-Argon reference lamp is installed and driven at 15~mA \cite{Ondrejov2m}.
 
 
 \section{CCD Detector Fundamentals}
 
 Charge-Couple Devices are widely used in astronomical spectroscopy since they are well suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements.
 This is because of their properties, which include high quantum efficiency, linear response over a wide dynamic range and relatively low noise characteristics.
+And as opposed to CMOS sensor they offer more consistency between pixels as pixels share a read out circuitry.
 
 The operating mode of these devices is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect.
 This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency.
 The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time.
-Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector and eventually read out at an amplifier.
-In this readout process, the collected charge is converted to a voltage signal in order to be digitized by analog-to-digital converter (ADC) and recorded in units of Analog-to-Digital Units (ADU).
-During this process, several instrumental effects that have to be characterized and corrected during data reduction are introduced \cite{Moore2014}.
+Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector, amplified and read out using ADC \cite{Moore2014}.
 
 The CCD gain determines the conversion between the number of electrons and the recorded ADU value, in units of electrons per ADU
 \begin{equation}
-N_{e^-} = G \cdot S_{\text{ADU}}.
+S_{e^-} = g \cdot S_{\text{ADU}},
 \label{eq:gain_def}
 \end{equation}
-Knowledge of this gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources.
+where $g$ is the gain in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ and $S_{\text{ADU}}$ recorded signal in ADU.
+Knowledge of sensor's gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources.
 Incorrect gain value can leads to systematic errors in noise estimations and subsequently in signal-to-noise ratio calculations, affecting the reliability of scientific results \cite{Martinez2001}.
 
-Another important characteristic of CCD detectors is their linear response, which assures that the recorded signal is proportional to the number of incident photons over a wide range of illumination levels.
+Under ideal conditions gain would be a constant and thus CCD sensor would behave linearly.
+However often gain is a function of the incoming light intensity or other parameters.
+Additionally commonly even when gain isn't dependant on light intensity, deviation from linearity may still occur at very low signal levels due to electronic effects or near full-well capacity due to charge saturation.
 The assumption of linearity is crucial for many calibration procedures, such as flat-field correction and gain determination.
-Deviations from linearity may occur at very low signal levels due to electronic effects or near full-well capacity due to charge saturation.
 Consequently, linearity tests are commonly performed to verify the operational range of the detector \cite{Martinez2001}.
 
 In addition to gain and linearity, CCD performance is influenced by pixel-to-pixel variations in sensitivity, commonly referred to as pixel response non-uniformity.
@@ -172,7 +175,8 @@ Understanding the physical operation of CCD detectors and their fundamental char
 
 \section{Noise Sources in CCD Detectors}
 
-Several independent noise sources affect measurements performed with CCD detectors. The main contributions are read noise, dark current noise, and photon (shot) noise.
+Several independent noise sources affect measurements performed with CCD detectors.
+The main contributions are read noise, dark current noise, and photon (shot) noise.
 A clear understanding of the physical origin and statistical properties of these noise sources is essential for interpreting CCD data and for optimizing observational strategies.
 
 Read noise is introduced during the electronic readout process of the CCD and is independent of the exposure time.
@@ -186,7 +190,6 @@ This happens because read noise does not depend on exposure time, as the collect
 To achieve reliable measurements, read noise has to be minimized for short exposures or observations of faint sources.
 Read noise should follow Gaussian (normal) distribution, as it originates from the sum of many independent electronic processes in the readout chain \cite{Moore2014}.
 
-
 Dark current noise arises from thermally generated electrons within the silicon lattice of the CCD, even when no light is incident on the detector.
 These electrons generate because of thermal excitation and are indistinguishable from the photoelectrons that come from incident photons.
 As a result, dark current introduces an additional signal that accumulates linearly with exposure time.
@@ -196,13 +199,16 @@ To minimize this, CCD detectors are commonly cooled, avoiding the temperature ch
 In detectors that have a good cooling system, the contribution of dark current noise may become negligible compared to other noise sources.
 Dark current noise follows Poisson statistics, since it is generated by random thermal electron production events within the CCD lattice \cite{FellersDavidson}.
 
-Lastly, the other noise source that can be found is the photon noise, sometimes refered to just asshot noise, which originates from the statistical nature of photon arrival at the detector -- thus it isn't a property of the detector itself.
+Lastly, the other noise source that can be found is the photon noise, sometimes referred to just as shot noise, which originates from the statistical nature of photon arrival at the detector -- thus it isn't a property of the detector itself.
 The number of detected photons fluctuates from one exposure to another even for a constant light source, since they arrive at the CCD detector following Poisson statistics.
-The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration. If photons are detected during the exposure, the corresponding shot noise is given by:
+The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration \cite{Martinez2001}.
 
-Photon noise becomes the dominant noise source at high fluxes since it increases with signal level. Compared to read noise and dark current noise, photon noise represents a fundamental physical limit and cannot be reduced by just making instrumental improvements. The way to reduce its relative impact would be by increasing the signal level where it is stated that it can be reduced through longer exposure times or larger telescope apertures. Photon noise also follows a Poisson distribution, reflecting the stochastic nature of photon arrival at the detector \cite{Martinez2001}.
+Photon noise becomes the dominant noise source at high fluxes since it increases with signal level.
+Compared to read noise and dark current noise, photon noise represents a fundamental physical limit and cannot be reduced by just making instrumental improvements.
+The way to reduce its relative impact would be by increasing the signal level where it is stated that it can be reduced through longer exposure times or larger telescope apertures.
 
-Finally, these different noise sources must be considered together. Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions:
+Finally, these different noise sources must be considered together.
+Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions:
 \begin{equation}
 \sigma_{\text{total}}^{2}
 =
@@ -622,7 +628,7 @@ Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
 	5242 & 36.17 & 4273.7 & 4507.7 \\
 \hline
 \end{tabular}
-	\label{tab:pos1}
+	\label{tab:pos2}
 \end{center}
 \end{table}
 
