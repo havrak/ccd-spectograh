@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{enumitem}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
 T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -22,7 +23,7 @@ Technicka 2, Prague, Czech Republic \\
 havrakry@fel.cvut.cz}
 \and
 \IEEEauthorblockN{Martin Jelínek}
-\IEEEauthorblockA{\textit{Mentor of the project} \\
+\IEEEauthorblockA{\textit{Course: Space Engineering \the\year} \\
 \textit{Astronomical Institute of the CAS}\\
 Fričova 298, Ondřejov, Czech Republic \\
 martin.jelinek@asu.cas.cz}
@@ -31,60 +32,53 @@ martin.jelinek@asu.cas.cz}
 \maketitle
 
 \begin{abstract}
-Following paper concerns itself with analysis of parameters of a coudé CCD 700~mm spectrograph connected to a Perek 2 meter optical telescope in Ondřejov Observatory. Analysis of zeros, darks and flat-fields was done in order to estimate noise parameters, pixels uniformity and sensors gain.
+This paper presents an analysis of the parameters of the Coudé CCD 700~mm spectrograph connected to the Perek 2-meter optical telescope at the Ondřejov Observatory.
+Zero, dark, and flat-field frames were acquired and processed in order to estimate noise parameters, pixel uniformity, and sensor gain.
 \end{abstract}
 
 \section{Introduction}
 
 One of the primary tools used to investigate the physical properties of celestial objects is astronomical spectroscopy.
-This carries out a process that enables the determination of stellar temperatures, chemical composition, radial velocities and other fundamental parameters by dispersing incoming light into its constituent wavelengths.
-Nowadays, modern spectroscopic observations rely on large-aperture telescopes which are combined with sensitive CCD detectors and stable spectrographs.
+This technique enables the determination of stellar temperatures, chemical composition, radial velocities, and other fundamental parameters by dispersing incoming light into its constituent wavelengths.
+Modern spectroscopic observations rely on large-aperture telescopes combined with sensitive CCD detectors.
+The scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}.
 
-As emphasized by Martinez et al. in A Practical Guide to CCD Astronomy, the scientific quality of CCD-based observations depends not only on the optical system but also on a precise understanding of detector behavior and noise sources, as well as on proper calibration procedures \cite{Martinez2001}.
-Similarly, Lessons from the Masters highlights that accurate spectroscopic measurements require careful instrument characterization and calibration before any scientific interpretation can be performed \cite{Moore2014}.
-
-In it's beginning this protocol describes the instrumental setup and theoretical background relevant to spectroscopic observations carried out with the Ondřejov 2-m telescope.
+This protocol begins by describing the instrumental setup and theoretical background relevant to spectroscopic observations carried out with the Ondřejov 2-m telescope.
 Particular emphasis is placed on the principles of spectrograph operation, CCD detector characteristics, and the main noise sources affecting the acquired data.
 This theoretical foundation provides the basis for the data reduction and analysis steps described in later sections.
 
-
 \section{Perek 2~m Telescope}
 
-The Perek 2~m telescope (see \ref{fig:perek}), operated by the Astronomical Institute of the Czech Academy of Sciences, is built as a classical Coudé reflector with a 2~m primary mirror.
-The telescope provides a combination of high light-gathering power and mechanical stability, making it well suited for high-resolution spectroscopic observations of relatively faint astronomical targets \cite{Ondrejov2m}.
+The Perek 2~m telescope, operated by the Astronomical Institute of the Czech Academy of Sciences, is an optical telescope built as a classical Coudé reflector with a 2~m primary mirror.
+The telescope provides a combination of high light-gathering power and mechanical stability, making it well suited for high-resolution spectroscopic observations of relatively faint stars \cite{Ondrejov2m}.
 
-In Coudé configuration incoming light is reflected from the primary mirror onto the secondary which then reflects it with flat mirrors into a Coudé focus \ref{fig:layout_telescope}.
-From the telescope three optical fibres bring the light to two different spectrographs -- an echelle spectrograph and a single order spectrograph with focal length of 700~mm (referred to as Coudé spectrograph), which is the focus of this paper.
+In the Coudé configuration, incoming light is reflected by the primary mirror onto the secondary, which then directs it via flat mirrors to the Coudé focus (see Figure~\ref{fig:layout_telescope}).
+From the telescope, three optical fibers guide the light to two different spectrographs: an echelle spectrograph and a single-order spectrograph with a configurable focal length (referred to as the Coudé spectrograph).
+Currently only setup for 700~mm focal length is being used a this one is the focus of this paper.
 
 The telescope is equipped with accurate guiding and tracking systems.
-This is essential for in order o prevent blurring on long exposures when narrow entrance slits or optical fibers.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\columnwidth]{../img/perek.jpg}
-\caption{Perek 2~m Telescope}
-\label{fig:perek}
-\end{figure}
+This is essential in order to prevent image drift during long exposures when using narrow entrance slits or optical fibers.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{../img/schema_coude.png}
-	\caption{Optical layout of Perek 2~m Telescope\cite{Ondrejov2m}}
+	\caption{Optical layout of the Perek 2~m Telescope\cite{Ondrejov2m}}
 \label{fig:layout_telescope}
 \end{figure}
 
-\section{Spectral Orders And Wavelength Calibration}
+\section{Spectrograph}
 
-Spectrograph is an optical instrument designed in a way that incoming light is dispersed into its different wavelength components.
-In the field of scientific spectrographs, this kind of dispersion is achieved by using a diffraction grating.
-Grating is a prism with hundreds of grooves that acts in a similar matter to a two slit experiment -- it exploits constructive interference creating a maxima and minima for each wavelength.
-Different wavelength get diffracted with different angles, for which following equation must be satisfied
+A spectrograph is an optical instrument designed to disperse incoming light into its constituent wavelength components.
+In the field of scientific spectroscopy, this dispersion is typically achieved using a diffraction grating.
+A grating is an optical element featuring hundreds of periodic grooves.
+It's basic working principle is essentially the same as effect seen in a double-slit experiment -- it exploits constructive interference to create maxima and minima for each wavelength.
+Different wavelengths are diffracted from the grating at different angles, where following equation must be satisfied:
 \begin{equation}
 	d \sin \theta_m = m \lambda,
 \end{equation}
-where $d$ is the distance of grooves, $\theta_m$ is a diffraction angle at which maxima occurs, $\lambda$ is lights wavelength and $m$ is a integer denoting spectral order.
-Spectral orders can result in multiple wavelength interfering with each other (see \ref{img:spectral_orders}).
-For example first spectral order of light with wavelength $\lambda$, will fall to the same spot as second order of wavelength $\lambda/2$ \cite{tau_hydrogen_2018}.
+where $d$ is the groove spacing, $\theta_m$ is the diffraction angle at which a maximum occurs, $\lambda$ is the wavelength of light, and $m$ is an integer denoting the spectral order.
+Spectral orders can lead to multiple wavelengths overlapping with each other (see Figure~\ref{img:spectral_orders}).
+For example, the first spectral order of light with wavelength $\lambda$ will fall on the same location as the second order of wavelength $\lambda/2$ \cite{tau_hydrogen_2018}.
 
 \begin{figure}[htbp]
 \centering
@@ -93,16 +87,16 @@ For example first spectral order of light with wavelength $\lambda$, will fall t
 \label{img:spectral_orders}
 \end{figure}
 
-In order to prevent interference between spectral orders multiple different constructions can be used.
-Echelle type spectrographs use cross-dispersing element to spatially separate diffraction orders on the detector -- this enables them to measure very wide spectrum in a single image \cite{Eversberg2015}.
-A simpler approach is to use filters to block out light of wavelength that would interfere with the observation.
-It's also possible to do observation in an order where possible interfering wavelengths fall bellow capabilities of the CCD detector or the optical system itself.
-Coudé spectrograph connected to Perek telescope employs both approaches \cite{Ondrejov2mCZ}.
+In order to prevent overlap between spectral orders, several different construction techniques can be used.
+Echelle-type spectrographs use a cross-dispersing element to spatially separate diffraction orders on the detector.
+This enables the measurement of a very wide spectrum in a single exposure \cite{Eversberg2015}.
+A simpler approach is to use filters to block out light of wavelengths that would interfere with the observation.
+It is also possible to conduct observations in an order where potentially interfering wavelengths fall below the sensitivity range of the CCD detector or the transmission limits of the optical system itself.
+The Coudé spectrograph connected to the Perek telescope employs both of these latter approaches \cite{Ondrejov2mCZ}.
 
-\section{Coudé Spectrograph}
-
-The coudé spectrograph at the Ondřejov Observatory operates as a single order spectrograph operating either in the first or the second order depending on what range of wavelengths is being observed \ref{tab:spec_orders}.
-Basic components of the spectrograph are an entrance slit or fiber, a collimator, a dispersive element, a camera system and a detector, as seen on picture \ref{img:layout_spectograph}.
+\subsection{Coudé Spectrograph}
+The Coudé spectrograph at the Ondřejov Observatory operates as a single-order spectrograph, functioning in either the first or the second order depending on the wavelength range being observed (see Table~\ref{tab:spec_orders}).
+The basic components of the spectrograph include an entrance slit or fiber, a collimator, a dispersive element, a camera system, and a detector, as shown in Figure~\ref{img:layout_spectograph}.
 
 \begin{table}[htbp]
 \caption{Coudé Spectrograph Operating Range}
@@ -120,127 +114,123 @@ Basic components of the spectrograph are an entrance slit or fiber, a collimator
 \end{center}
 \end{table}
 
-Light that enters the spectrograph through the slit or optical fiber, collimating into a parallel beam.
-Beam then encounters the diffraction grating is encountered, which separates the light according to wavelength.
-Next the dispersed light is focused onto the CCD detector by Schmidt camera optics, where the spectrum is recorded.
-Schmidt camera is used as to prevent distortion of the spectrum towards edges of the sensor.
+Light enters the spectrograph through the slit and is collimated into a parallel beam.
+The beam then encounters the diffraction grating, which separates the light according to wavelength.
+Next, the dispersed light is focused onto the CCD detector by Schmidt camera optics, where the spectrum is recorded.
+A Schmidt camera is used to minimize distortion of the spectrum towards the edges of the sensor.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{../img/schema_coude_spec.png}
-	\caption{Optical layout of a Coudé spectrograph\cite{Ondrejov2m}}
+	\caption{Optical layout of the Coudé spectrograph\cite{Ondrejov2m}}
 \label{img:layout_spectograph}
 \end{figure}
 
-A PyLoN eXcelon type of CCD assembly is used with chip E2V 42-10 BX.
-The chip is cooled using liquid nitrogen to operating temperature of -115°C.
+The detector system consists of a PyLoN eXcelon CCD assembly utilizing an E2V 42-10 BX chip.
+The chip is cooled using liquid nitrogen to an operating temperature of $-115^\circ$C.
 For calibration a Thorium-Argon reference lamp is installed and driven at 15~mA \cite{Ondrejov2m}.
-
 
 \section{CCD Detector Fundamentals}
 
-Charge-Couple Devices are widely used in astronomical spectroscopy since they are well suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements.
-This is because of their properties, which include high quantum efficiency, linear response over a wide dynamic range and relatively low noise characteristics.
-And as opposed to CMOS sensor they offer more consistency between pixels as pixels share a read out circuitry.
-Thus CCD senors often exhibit lesser fixed pattern than CMOS detectors.
+Charge-Coupled Devices (CCDs) are widely used in astronomical spectroscopy as they are well-suited for the detection of faint astronomical signals and for applications requiring precise spectroscopic and photometric measurements.
+This is due to their properties, which include high quantum efficiency, linear response over a wide dynamic range, and relatively low noise characteristics.
+In contrast to CMOS sensors, CCDs generally offer better pixel-to-pixel consistency, as all pixels share common readout circuitry.
+Consequently, CCD sensors generally exhibit less fixed-pattern noise than CMOS detectors.
 
-The basic operating principle is that incident photons interact with the silicon substrate, generating photoelectrons through the photoelectric effect.
-This way, the number of generated electrons is proportional to the incident photon flux and the detector quantum efficiency.
-The generated photoelectrons are accumulated in potential wells associated with individual pixels during the exposure time.
-Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector, amplified and read out using ADC \cite{Moore2014}.
+The basic operating principle is that incident photons interact with the silicon substrate, generating photoelectrons via the photoelectric effect.
+The number of generated electrons is therefore proportional to the incident photon flux and the detector's quantum efficiency.
+These photoelectrons accumulate in potential wells associated with individual pixels during the exposure time.
+Then, using a sequence of clocked voltage shifts, the stored charge is transferred across the detector, amplified, and read out using an ADC \cite{Moore2014}.
 
-The CCD gain determines the conversion between the number of electrons and the recorded ADU value, in units of electrons per ADU
+The CCD gain determines the conversion between the number of electrons and the recorded ADU value, expressed in units of electrons per ADU:
 \begin{equation}
 S_{e^-} = g \cdot S_{\text{ADU}},
 \label{eq:gain_def}
 \end{equation}
-where $g$ is the gain in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ and $S_{\text{ADU}}$ recorded signal in ADU.
-Knowledge of sensor's gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources.
-Incorrect gain value can leads to systematic errors in noise estimations and subsequently in signal-to-noise ratio calculations, affecting the reliability of scientific results \cite{Martinez2001}.
+where $g$ is the gain in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ and $S_{\text{ADU}}$ is the recorded signal in ADU.
+Knowledge of the sensor's gain is essential for converting measured signals into physically meaningful quantities and for correctly estimating the contributions of different noise sources.
+An incorrect gain value can lead to systematic errors in noise estimation and subsequently in signal-to-noise ratio calculations, affecting the reliability of scientific results \cite{Martinez2001}.
 
-Under ideal conditions gain would be a constant and thus CCD sensor would behave linearly.
-However often gain is a function of the incoming light intensity or other parameters.
-Additionally commonly even when gain isn't dependant on light intensity, deviation from linearity may still occur at very low signal levels due to electronic effects or near full-well capacity due to charge saturation.
-The assumption of linearity is crucial for many calibration procedures, such as flat-field correction and gain determination.
+Under ideal conditions the gain is constant and thus the CCD sensor behaves linearly.
+However, gain can sometimes be a function of the incoming light intensity or other parameters.
+Furthermore, even when gain is quite independent on light intensity, deviations from linearity may still occur at very low signal levels due to electronic effects and especially near full-well capacity due to saturation.
 Consequently, linearity tests are commonly performed to verify the operational range of the detector \cite{Martinez2001}.
 
-In addition to gain and linearity, CCD performance is influenced by pixel-to-pixel variations in sensitivity, commonly referred to as pixel response non-uniformity.
-These variations arise from manufacturing imperfections and are corrected using flat-field calibration frames.
+In addition to gain and linearity, CCD performance is influenced by pixel-to-pixel variations in sensitivity.
+These variations arise from manufacturing imperfections and are corrected using calibration frames \cite{Moore2014}.
 Understanding the physical operation of CCD detectors and their fundamental characteristics is therefore essential for the correct interpretation of spectroscopic data and forms the basis for the calibration and noise analysis procedures described in subsequent sections.
 
-\section{Noise Sources in CCD Detectors}
+\subsection{Noise Sources in CCD Detectors}
 
 Several independent noise sources affect measurements performed with CCD detectors.
-The main contributions are read noise, dark current noise, and photon (shot) noise.
+The main contributions are read noise, dark current noise, and photon noise.
 A clear understanding of the physical origin and statistical properties of these noise sources is essential for interpreting CCD data and for optimizing observational strategies.
 
 Read noise is introduced during the electronic readout process of the CCD and is independent of the exposure time.
-It comes from multiple electronic components, such as the output amplifier, the charge-to-voltage conversion stage or the analog-to-digital converter.
-Fluctuations in the process of the readout lead to uncertainty in the measured signal, even in the absence of incident light.
+It originates from multiple electronic components, such as the output amplifier, the charge-to-voltage conversion stage, or the analog-to-digital converter.
+Fluctuations in the readout process lead to uncertainty in the measured signal, even in the absence of incident light.
 
 Read noise is typically characterized using bias (zero-exposure) frames, which record the electronic offset and readout fluctuations of the detector.
 By analyzing the statistical dispersion of pixel values across multiple bias frames, the read noise can be estimated on a pixel-by-pixel basis or as a global detector parameter.
-Read noise limits low signal levels, where it can dominate over other noise sources and significantly reduce the signal-to-noise ratio.
-This happens because read noise does not depend on exposure time, as the collected signal increases, its relative contribution decreases.
-To achieve reliable measurements, read noise has to be minimized for short exposures or observations of faint sources.
-Read noise should follow Gaussian (normal) distribution, as it originates from the sum of many independent electronic processes in the readout chain \cite{Moore2014}.
+Read noise limits performance at low signal levels, where it can dominate over other noise sources and significantly reduce the signal-to-noise ratio.
+This occurs because read noise does not depend on exposure time -- thus as the collected signal increases, the relative contribution of read noise decreases.
+To achieve reliable measurements, read noise must be minimized for short exposures or observations of faint sources.
+Read noise typically follows a Gaussian distribution, as it originates from the sum of many independent electronic processes in the readout chain \cite{Moore2014}.
 
 Dark current noise arises from thermally generated electrons within the silicon lattice of the CCD, even when no light is incident on the detector.
-These electrons generate because of thermal excitation and are indistinguishable from the photoelectrons that come from incident photons.
 As a result, dark current introduces an additional signal that accumulates linearly with exposure time.
+Dark current strongly depends on detector temperature and can increase rapidly with even slight temperature changes.
+To minimize this, CCD detectors are commonly cooled, preventing temperature fluctuations and reducing the dark current and associated noise.
+In detectors equipped with effective cooling systems, the contribution of dark current noise may become negligible compared to other noise sources.
+Dark current noise follows Poisson statistics \cite{FellersDavidson}.
 
-Dark current strongly depends on detector temperature and can increase rapidly with the slightest temperature changes.
-To minimize this, CCD detectors are commonly cooled, avoiding the temperature changes and reducing the dark current and associated noise.
-In detectors that have a good cooling system, the contribution of dark current noise may become negligible compared to other noise sources.
-Dark current noise follows Poisson statistics, since it is generated by random thermal electron production events within the CCD lattice \cite{FellersDavidson}.
-
-Lastly, the other noise source that can be found is the photon noise, sometimes referred to just as shot noise, which originates from the statistical nature of photon arrival at the detector -- thus it isn't a property of the detector itself.
-The number of detected photons fluctuates from one exposure to another even for a constant light source, since they arrive at the CCD detector following Poisson statistics.
+Finally, the third major noise source is photon noise.
+It originates from the statistical nature of photon arrival at the detector and is therefore not a property of the detector itself.
+The number of detected photons fluctuates from one exposure to another even for a constant light source, since photon arrival follows Poisson statistics.
 The uncertainty these fluctuations contribute to the detected signal cannot be eliminated by calibration \cite{Martinez2001}.
-
-Photon noise becomes the dominant noise source at high fluxes since it increases with signal level.
-Compared to read noise and dark current noise, photon noise represents a fundamental physical limit and cannot be reduced by just making instrumental improvements.
-The way to reduce its relative impact would be by increasing the signal level where it is stated that it can be reduced through longer exposure times or larger telescope apertures.
+Photon noise becomes the dominant noise source at high fluxes since it increases with signal intensity.
 
 Finally, these different noise sources must be considered together.
-Assuming the noise sources are statistically independent, the total noise in a CCD pixel is given by the quadratic sum of all contributions:
+Assuming the noise sources are statistically independent, their variances sum up linearly, meaning the total noise is the quadratic sum of the individual components \cite{Newberry1996}.
+This can be expressed as:
 \begin{equation}
 \sigma_{\text{total}}^{2} = \sigma_{\text{read}}^{2} + \sigma_{\text{dark}}^{2} + \sigma_{\text{shot}}^{2}.
 \label{eq:total_noise}
 \end{equation}
-This expression provides a practical framework for evaluating detector performance and for optimizing exposure times in spectroscopic observations \cite{Martinez2001, Moore2014}.
 Understanding which noise source dominates under given observational conditions is essential for designing efficient observing strategies and for interpreting the measured data.
 
-\section{Calibration Frames}
+\subsection{Calibration Frames}
 
-Different types of calibration frames are essential to estimate sensors properties and separate the true astronomical signal from the detector and instrumental related contributions.
-The most used ones are bias (zero) frames, dark frames and flat-field frames.
+Different types of calibration frames are essential for estimating sensor properties and separating the true astronomical signal from detector and instrument-related artifacts.
+The most common types are bias (zero) frames, dark frames, and flat-field frames.
 
 Bias or zero-exposure frames are used to measure the electronic offset introduced during the readout process and to characterize the read noise of the detector.
 Since bias frames are acquired with no light incident on the CCD, they contain only the electronic bias level (fixed pattern) and readout fluctuations.
-As stated in, by combining multiple bias frames, a master bias frame can be constructed.
-This frame is  subsequently subtracted from all other images to remove any sensors fixed pattern \cite{Moore2014}.
+By combining multiple bias frames, a master bias frame can be constructed.
+This master frame is subsequently subtracted from all other images to remove the sensor's fixed pattern bias \cite{Moore2014}.
 
 Dark frames are acquired with the same exposure time and detector temperature as the science observations but without any incident light.
 They are used to characterize the dark current and its associated noise.
 The accumulated dark signal increases linearly with exposure time and depends strongly on detector temperature.
-Dark frames can also capture fixed-pattern components of the dark signal, such as hot pixels. These can be removed by subtracting a master dark frame from the data \cite{Martinez2001}.
+Dark frames also capture fixed-pattern components of the dark signal, such as hot pixels.
+These artifacts can be removed by subtracting a master dark frame from the data \cite{Martinez2001}.
 
-Flat-field frames are used to correct for pixel-to-pixel sensitivity variations, large-scale illumination gradients across the detector and estimate sensors gain.
-Usually a uniform illumination of the sensor is required to ascertain these parameters.
-However due to inherent nature of spectrographs, light is decomposed to its constituent wavelength, such uniform illumination is impossible to achieve \cite{Robertson_2021}.
-This imposes large complications on flat-field analysis.
+Flat-field frames are used to correct for pixel-to-pixel sensitivity variations and large-scale illumination gradients across the detector, as well as to estimate the sensor's gain.
+Usually, uniform illumination of the sensor is required to ascertain these parameters.
+However, due to the inherent nature of spectrographs, where light is dispersed into its constituent wavelengths, achieving completely uniform illumination is impossible \cite{Robertson_2021}.
+This introduces significant complications for flat-field analysis.
 
 \section{Bias Frame Analysis}
 
-15 bias frames were taken at lowest exposition time possible.
-Exact time in seconds is not known as camera limitations induce some static delay.
-Later on from dark frames it was estimated to be around half a second, but for the purpose of analyzing zero frames it doesn't play a role and neither was a lot of attention given to making the offset estimate particularly accurate.
+Fifteen bias frames were acquired at the shortest possible exposure time.
+The exact duration in seconds is not precisely known, as camera limitations induce a fixed readout delay.
+Based on subsequent dark frames, this delay was estimated to be approximately 0.5 seconds.
+However, for the purpose of analyzing bias frames, the exact value is unimportant, and a precise offset estimation was not an objective anyway.
 
-Analysis of bias frames from the spectrograph is relatively straightforward.
-First of all median frame was created, to remove any fixed-pattern CCD might exhibit.
-Median is used to prevent master frame from being influenced by any high energy particles that might impact the sensor during short observation and sway the results.
-For master frame and stack of all bias frames basic statics were calculated as showed in table \ref{tab:zero}.
+The analysis of bias frames from the spectrograph is relatively straightforward.
+First, a median frame was created to characterize any fixed-pattern noise the CCD might exhibit.
+A median combination is used instead of average to prevent the master frame from being influenced by high-energy particles (cosmic rays) that might have impacted the sensor during the short observation window and skewed the results.
+Basic statistics were calculated for both the master frame and the full stack of bias frames, as shown in Table~\ref{tab:zero}.
 
 \begin{table}[htbp]
 \caption{Bias Frame Analysis Results}
@@ -259,10 +249,11 @@ For master frame and stack of all bias frames basic statics were calculated as s
 \end{center}
 \end{table}
 
-We can see that the readout noise is fairly small and also from really low deviation within master frame that the sensor doesn't exhibit any noticeable fixed-pattern (also apparent from \ref{img:master_bias}).
-Bellow are images, one for statics calculated within master frame \ref{img:master_zero}, second for all zeros taken \ref{img:zero_stack}.
-As some high energy particles impacted the sensor in some frames second histogram limited to at max 625~ADU.
-Still it is clearly visible that the measured noise has expected Gaussian distribution.
+The results indicate that the readout noise is quite low.
+Furthermore, the very low standard deviation within the master frame suggests that the sensor does not exhibit much of a noticeable fixed-pattern (visualized in Figure~\ref{img:master_bias}).
+The histograms below display the statistics calculated for the master frame (Figure~\ref{img:master_zero}) and for the entire stack of bias frames (Figure~\ref{img:zero_stack}).
+Since high-energy particles impacted the sensor in some individual frames, the second histogram is limited to a maximum of 625~ADU to preserve detail.
+Despite these outliers, it is clearly visible that the measured noise follows the expected Gaussian distribution.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -290,22 +281,23 @@ Still it is clearly visible that the measured noise has expected Gaussian distri
 
 \section{Dark Frame Analysis}
 
-All together four dark frames were taken each with one hour long exposition.
-At first master zero frame was subtracted from all dark frames, to remove any fixed-pattern, regardless how small.
-Multiple different properties were then observed.
-Those were dark current characteristics, number of hot pixels and transient events (which needed to be filtered out).
+A total of four dark frames were acquired, each with a one-hour exposure time.
+First, the master zero frame was subtracted from all dark frames to remove any fixed-pattern bias, regardless of its magnitude.
+Several properties were then analyzed, including dark current characteristics, the number of hot pixels, and transient events (which required filtering).
 
-A threshold for hot pixels was set to be a values higher than 5 times the standard deviation of the master dark frame, according to \cite{KennedyYoung2020}.
-In individual dark frames it would be impossible to distinguish between high energy particles impacting the sensor and hot pixels thus this analysis was only run on the master dark frame, since hot pixels should exhibit values significantly higher then mean in all images.
-For threshold of 5 times the standard deviation 252 such pixels were found, this comprises 0.024~\% of the area of the CCD sensor.
-If a much more conservative threshold of 10 times the standard deviation would be used only 17 pixels would have met this criteria.
-Thus it's also apparent that sensor exhibits quite good thermal noise uniformity.
+A threshold for hot pixels was defined as any value exceeding 5 times the standard deviation of the master dark frame, following the method described by \cite{KennedyYoung2020}.
+In individual dark frames, it is difficult to distinguish between high-energy particles impacting the sensor (cosmic rays) and true hot pixels.
+Therefore, this analysis was performed only on the master dark frame, as hot pixels consistently exhibit values significantly higher than the mean in all images.
+Using a threshold of $5\sigma$, 252 hot pixels were identified, comprising 0.024\% of the CCD sensor area.
+Had a more conservative threshold of $10\sigma$ been used, only 17 pixels would have met the criteria.
+This indicates that the sensor exhibits excellent thermal noise uniformity.
 
-Some of these hot pixels fall within areas that are illuminated by the light coming from the dispersive grating.
-However most pixels (177 or 69.4~\%) are isolated and don't form any larger cluster, so their impact on measurement should be negligible.
-Remaining 77 have another hot pixels in their vicinity (checked by doing 2D convolution using 5x5 matrix of ones).
-With largest groups having as many as 10 pixels close to each other, which could possibly be a small manufacturing defect.
-Their locations can be seen on picture \ref{img:hot_pixels}, each dot has a size of 30 pixels as to be visible.
+Some of these hot pixels fall within areas illuminated by light from the dispersive grating.
+However, as the majority of pixels (177, or 69.4\%) are isolated and do not form larger clusters.
+Thus, their impact on measurements should be negligible.
+The remaining 77 pixels have other hot pixels in their vicinity (verified by performing a 2D convolution with a $5 \times 5$ uniform kernel).
+The largest groups contain up to 10 adjacent pixels, which may indicate small manufacturing defects.
+The locations of these pixels are shown in Figure~\ref{img:hot_pixels}, where each point has been dilated by 30 pixels to ensure visibility.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -315,26 +307,26 @@ Their locations can be seen on picture \ref{img:hot_pixels}, each dot has a size
 \label{img:hot_pixels}
 \end{figure}
 
+Aside from static hot pixels, transient events were also detected.
+As previously noted, while hot pixels exhibit high values in all dark frames, pixels affected by transient events (such as cosmic rays or background radiation) appear "hot" only in a single frame.
+By comparing the maximum value of each pixel across the dark stack to the median dark frame, approximately 707 pixels were found to exceed a threshold of 1000~ADU due to transient events.
 
-Aside from constantly hot pixels transient events were also detected.
-As already stated, while hot pixels will exhibit high values on all dark frames, pixels effected by transient event (cosmic rays, background radiation) will be hot only on single frame.
-Taking a maximal value for each pixel from all darks and comparing it to median dark frame, some 707 pixels were over a threshold of 1000 ADU.
+Regarding the statistical properties of the dark frames, the master dark frame exhibits a low standard deviation of 2.01~ADU, with an average value of 1.89~ADU.
+The standard deviation calculated over all individual frames is 6.77~ADU.
+When transient events are excluded, this drops to 6.02~ADU.
+Verifying whether the measured data follows the expected distribution is challenging.
+Shot noise associated with dark current should exhibit a Poisson distribution.
+However, because its variance is quite small, comparable to that of the read noise, it is difficult to accurately separate the two noise sources.
+Although the variance of the read noise (from the master zero) is known, this noise remains present in the dark frames and cannot be easily subtracted.
 
-As for statistical properties of the dark frames.
-Master dark frame exhibits a low standard deviation of 2.01~ADU, with average values of 1.89~ADU.
-Deviation calculated over all frames is 6.77~ADU, when transient events are excluded this drops to 6.02~ADU.
-Verifying if the measured data follow expected distribution is rather difficult.
-Shot noise from dark currents should exhibit Poisson distribution, however as it's variance is quite small -- that is comparable with one for readout noise -- it's difficult to accurately separate both noises.
-While variance of read noise and master zero is known, this noise is still present in darks and cannot be easily subtracted.
-
-In order to express dark currents in accurate units $e^{-}s^{-1}$ gain value of $0.6114\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in following chapters, was used.
-Using this gain mean dark current was $0.342\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.321\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$.
-It clearly holds that $\mu = \sigma = \lambda$ which is to be expected for Poisson statistical distribution.
-Distribution of dark current overlaid with Poisson distribution curve for calculated $\mu$ and $\sigma$ is showed on picture \ref{img:dark_distribution}.
+In order to express dark current in physical units ($e^{-}\mathrm{s}^{-1}$), a gain value of $0.6114~\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in subsequent sections, was used.
+Using this gain, the mean dark current was calculated as $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with a standard deviation of $0.342 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$.
+As we can see $\mu \neq \sigma^2$, which is inconsistent with the expected Poisson statistics, but as stated separation of different noises is difficult.
+The distribution of dark current, overlaid with a Poisson distribution curve for calculated $\sigma$, is shown in Figure~\ref{img:dark_distribution}.
 
 \begin{figure}[htbp]
 	\begin{center}
-		\includegraphics[width=0.4\textwidth]{../img/dark_current_distribution.png}
+		\includegraphics[width=0.47\textwidth]{../img/dark_current_distribution.png}
 	\end{center}
 \caption{Dark Current Distribution}
 \label{img:dark_distribution}
@@ -342,84 +334,86 @@ Distribution of dark current overlaid with Poisson distribution curve for calcul
 
 \section{Gain Calculation}
 
-In order to estimate gain 60 different images with different exposure times and at four different illumination intensities were taken.
-Light source was ambient light in the telescope dome.
-Different light intensities were achieved by offsetting optical fibres that bring light to the spectrograph relative to each other.
-Thus no prior information on how much did different intensities differ was known.
+In order to estimate the gain, 60 images were acquired using different exposure times and four different illumination intensities.
+The light source used was ambient light within the telescope dome.
+Different light intensities were achieved by offsetting the optical fibers that guide light to the spectrograph relative to each other.
+Consequently, no prior information regarding the relative differences between these intensities was available.
 
 Basic idea for noise calculation stems from the fact that arriving photons exhibit a Poisson distribution.
-Normally for Poisson distribution mean value and variance are equal to each other.
+Normally for a Poisson distribution mean value and variance are equal to each other.
 However when amplification/attenuation is present this doesn't hold true and gain value needs to be included into equation.
 If we also add influence of other noises (here just read noise $\sigma_\mathrm{ro}^2$) we get an equation
 \begin{equation}
 	g\cdot \sigma = \sqrt{\overline{x}\cdot g + \sigma_\mathrm{ro}^2}.
 	\label{eq:gain_eq}
 \end{equation}
-As the noise is statistically independent it's simply included in the sum, $\overline{x}$ is mean signal value, $\sigma$ it's standard deviation and lastly $g$ is gain\cite{Newberry1996}.
+Here, $\overline{x}$ represents the mean signal value in ADU, $\sigma$ is its standard deviation in ADU, and $g$ is the gain in $e^-\mathrm{ADU}^{-1}$.
 
-This equation is often modified for the purpose of numerical calculation as
+For the purpose of numerical calculation, this equation is often rearranged as:
 \begin{equation}
 	\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}.
 	\label{eq:numer_gain}
 \end{equation}
-This removes unnecessary step of calculating square root.
+This formulation describes a linear relationship between the variance ($\sigma^2$) and the mean signal ($\overline{x}$), where the slope is the inverse of the gain ($1/g$).
 
-In non where sensor installation can enable a uniforma flat-fields illumination good gain estimate can be made from just a couple of images\cite{irafGain}.
-Variances can also be calculated easily across different pixels - if their properties are similar.
-Coulde spectrograph in Ondřejov however doesn't allow an easy modification to the structure to ensure uniform illumination of the sensor.
-Incoming light thus still comes through the spectral dispersive grating and different parts of spectrograph are then illuminated with different light intensities and at different wavelength.
-As the light source doesn't have an constant spectrum illumination will thus be strictly uniform.
-In addition but a small part of the sensor is actually illuminated -- there are two thin strips each for one of two optical fibres brining light to the sensor, while most of the sensor area is unilluminated.
+In setups where uniform flat-field illumination is possible, a reliable gain estimate can be derived from just a small set of images \cite{irafGain}.
+Variances can be calculated spatially across pixels, provided their properties are similar.
+However, the Coudé spectrograph at Ondřejov does not allow for easy modification of the optical path to ensure uniform illumination of the sensor.
+Incoming light must still pass through the dispersive grating.
+Consequently, different parts of the spectrograph are illuminated with different wavelengths (However the possible influence of quantum efficiency is neglected).
+Since the light source does not have a constant spectrum, the illumination is strictly non-uniform.
+Furthermore, only a small fraction of the sensor is actually illuminated.
+Specifically two thin strips corresponding to the two optical fibers, while the majority of the sensor area remains unilluminated.
 
 \subsection{Inter-Frame Flat-field Analysis}
 
-First tested approach to calculate gain was based on calculating variances and means for groups of images of a same exposure time.
-Variances were thus calculated not over groups of multiple pixels but for each pixel independently as guided by \cite{Robertson_2021}.
-Images, after subtraction of master zero frame, were first group by same illumination level and exposure.
-Then for groups where more than one image was present statistical properties were calculated.
+The first approach tested for calculating gain involved computing variances and means over groups of images with identical exposure times and illumination level.
+Following the method described by \cite{Robertson_2021}, variances were calculated for each pixel independently across the image stack, rather than over groups of spatially adjacent pixels.
+After subtracting the master zero frame, images were grouped by illumination level and exposure time.
+Statistical properties were then calculated for groups containing more than one image.
 
-While for transient event detection in dark frames simple outlier rejection method based on $\overline{x} + n\cdot \sigma$ threshold was deemed sufficient here a more robust rejection method was implemented.
-This was done as in individual bins there might not be that many points and standard deviation might become significantly influenced by outliers -- thus not rejecting them properly.
-Instead a median absolute value (MAD) was used.
-MAD relies on median, which is much less likely to be influenced by outliers, otherwise the basic principle is similar to classical thresholding.
-Mean values of the data are sufficiently large for central limit theorem to apply \cite{Walpolec2002}.
-Thus a classical MAD scaling value of 1.4826 was kept, while cutoff value was chosen empirically based on data histogram.
+While a simple outlier rejection method based on an $\overline{x} \pm n\sigma$ threshold was deemed sufficient for transient event detection in dark frames, a more robust rejection method was implemented here.
+This was necessary because individual bins contained few data points, meaning the standard deviation could be significantly skewed by outliers, leading to ineffective rejection.
+Instead, the Median Absolute Deviation (MAD) was utilized.
+MAD relies on the median, rendering it far less sensitive to outliers, though the basic principle remains similar to classical thresholding.
+Since the mean signal values are sufficiently large for the Central Limit Theorem to apply, the noise distribution approximates a Gaussian \cite{Walpolec2002}.
+Consequently, the standard MAD scaling factor of 1.4826 was maintained, while the cutoff value was determined empirically based on the data histogram.
 
-Problem of this approach was that dataset contains multiple images for the same configuration only for low exposure times (bellow 10 seconds).
-Thus only values under 6000 ADU were accounted for in the gain calculation \ref{img:interframerobust}.
-This was deemed to be insufficient as peak value of the 16~bit is more than ten times larger.
+A major limitation of this approach was that the dataset contained multiple images for the same configuration only at short exposure times (below 10 seconds).
+Consequently, only values under 6000~ADU were included in the gain calculation (see Figure~\ref{img:interframerobust}).
+This was deemed insufficient, as the saturation limit of the 16-bit ADC is more than ten times higher.
 
 \begin{figure}[htbp]
 	\begin{center}
-		\includegraphics[width=0.4\textwidth]{../img/flat_interframe_robust.png}
+		\includegraphics[width=0.46\textwidth]{../img/flat_interframe_robust.png}
 	\end{center}
 \caption{Photon Transfer Curve -- Inter-Frame Analysis}
 \label{img:interframerobust}
 \end{figure}
 
-Gain value of $g=0.1915$ was calculated using this method.
-Due to problematic nature of this approach it's confidence intervals weren't calculated and read noise wasn't set to scale with $\frac{1}{g^2}$.
-Still it's apparent that the sensor doesn't exhibit expected behavior and thus it's gain isn't completely linear.
-There's especially a visible trend of median deviator values at low ADU levels increasing much faster than they should.
-Or it's also possible that fibre alignment wasn't as steady as it should be and spectral lines were slightly shifted between images.
-
+A gain value of $g=0.1915~\mathrm{e}^{-}\mathrm{ADU}^{-1}$ was calculated using this method.
+Due to the limitations of this approach, confidence intervals were not calculated, and the read noise term was not set to scale with $1/g^2$ in the fit.
+Nevertheless, it is apparent that the sensor does not exhibit the expected linear behavior, suggesting its gain is not perfectly constant.
+Specifically, there is a visible trend where some variances at low ADU levels increases much faster than expected.
+Alternatively, it is possible that the fiber alignment was not perfectly stable, causing spectral lines to shift slightly between exposures, artificially inflating the variance.
 
 \subsection{Spatial Flat-field Analysis}
 
-As at least pixels properties a are relatively constant in the sensor it was attempted to estimate gain while calculating statistical properties within individual pictures.
-In X axis are separated different wavelength it wouldn't be correct to group pixels in this direction.
-In Y direction however only one spectral line is present, however still not whole sensor is illuminated by it and even within bands with spectral lines brightness level isn't constant.
-Still were the gain values constant across different bin sizes it would provide some useful data.
+Since pixel properties are expected to be relatively constant across the sensor, an attempt was made to estimate the gain by calculating statistical properties within individual frames (spatial variance).
+Because different wavelengths are dispersed along the X-axis, grouping pixels in this direction would be incorrect.
+But along the Y-axis, the signal corresponds to the spatial profile of the optical fiber -- so a much more gradual change is to be expected.
+However, even in Y direction the illumination is far from constant, not to mention only a small part of sensor is illuminated.
+Still if the gain values calculated using this method were somewhat constant it was thought this method might provide some useful data.
 
-However as shown on table \ref{tab:spatial_flat} gain value changes significantly with bin sizes.
-And even when visualizing binned data it's clear that the trend isn't there \ref{img:flat_spatial_robust}.
+Regardless, as shown in Table~\ref{tab:spatial_flat}, the estimated gain value changes significantly with bin size.
+Furthermore, visualizing the binned data reveals that the expected trend is absent (see Figure~\ref{img:flat_spatial_robust}).
 
 \begin{table}[htbp]
 \caption{Spatial Flat-field Analysis Gain Estimates}
 \begin{center}
 \begin{tabular}{|c|c|}
 \hline
-	 Bin Height (px) & Gain ($\mathrm{e}^{-}/\mathrm{ADU}$) \\
+	 Bin Height (px) & Gain ($\mathrm{e}^{-}\mathrm{ADU}^{-1}$) \\
 \hline
 \hline
 2 & 0.1211 \\
@@ -445,44 +439,45 @@ And even when visualizing binned data it's clear that the trend isn't there \ref
 
 \subsection{Residual Flat-field Analysis}
 
-Upon mentors suggestion residual analysis method for gain estimation was attempted.
-Instead of calculating variance between real values, be it between two images or from bins, model is first created that is close to free from noise and variance from this model is then calculated.
-Data processing algorithm works in following steps:
-\begin{enumerate}[I]
-	\item First images are grouped based on illumination intensity (That is by different fibre positions).
-	\item Each group is then processed separately.
-		\begin{enumerate}
-			\item Model is created from images in the group. This model is normalized to have a mean value of one.
-			\item For each image model is scaled.
-			\item Residual for each pixel is calculated.
-			\item Mean value is taken as the model value.
-		\end{enumerate}
-	\item Stratified sampling.
-	\item Outlier rejection using MAD.
-	\item Calculate local gain in for each level.
-	\item Fit a $\sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}$.
+Upon a mentor's suggestion, a residual analysis method for gain estimation was attempted.
+Instead of calculating variance between raw pixel values—whether between two images or within spatial bins—this method first creates a "noise-free" model of the illumination pattern.
+The variance of the residuals (the difference between the observed data and this model) is then calculated.
+The data processing algorithm proceeds in the following steps:
+
+\begin{enumerate}[label=\Roman*.]
+    \item Images are first grouped based on illumination intensity (i.e., by different fiber positions).
+    \item Each group is then processed separately:
+        \begin{enumerate}[label=\arabic*.]
+            \item A model is created from the images in the group. This model is normalized to have a mean value of one.
+            \item The model is scaled to match the flux level of each individual image.
+            \item The residual for each pixel is calculated (Image $-$ Scaled Model).
+            \item The value of the model is recorded as the signal level for each pixel.
+        \end{enumerate}
+    \item Stratified sampling is applied to reduce data volume while preserving statistical distribution.
+    \item Outlier rejection is performed using the MAD.
+    \item Local gain is calculated for each signal level.
+		\item A global fit is performed using the equation (\ref{eq:numer_gain}).
 \end{enumerate}
 
-Main problem of this method is the creation of accurate model, that is free of noise.
-This model is created by calculating a mean value for each pixel over set of images.
+The main challenge of this method is the creation of an accurate, noise-free model.
+This model is typically created by calculating the mean value for each pixel over a set of images.
 
-One approach was to use largest set of images of the same exposure.
-In the processed dataset this occurst for the 10 second exposition time, for illumination level with the most data.
-Some illumination levels don't have pairs of images at all, so averaging accoss single exposure time cannot be done.
-Regardless when averaging same images we should see reduction of
+One approach was to use the largest set of images with the same exposure time.
+In the processed dataset, this corresponds to the 10~s exposure time, in case of the illumination level with the most data.
+Some illumination levels lack image pairs entirely, making averaging across a single exposure time impossible.
+Theoretically, averaging $N$ identical images reduces the noise by a factor of:
 \begin{equation}
 	\sigma_N = \frac{\sigma}{\sqrt{N}}
 	\label{eq:}
 \end{equation}
-where $\sigma_N$ is noise deviation after averaging and $N$ is the number of averaged images \cite{Walpolec2002}.
-At 9 frames we have a noise reduction of just 67~\%.
+where $\sigma_N$ is the noise deviation after averaging and $N$ is the number of averaged images \cite{Walpolec2002}.
+With only nine 10~s frames available, the noise reduction is limited to approximately 67\%.
 
-As this model is created for rather low ADU leves (at most around 6000), when scaled up remaining noise causes significant error.
-On image \ref{img:flat_model_10s} is the photon transfer curve when such a model is used.
-It's apparent that the model work really well for low values -- where the points follow the square root dependence rather well, however for larger values model breaks down as the remaining noise get's significant amplified in the scaling.
-Models failure can also be demonstrated best on residual histograms (images \ref{img:flat_hist_10s_med} and \ref{img:flat_hist_10s_3rd}), where not only shape of the curve itself is wrong but also mean estimate isn't clearly correct.
-
-% As the remaining noise in the model was quite large it was deemed unnecessary in trying to improve this model using dynamic correction methods.
+Since this specific model is created from relatively low ADU levels (peaking around 6000~ADU), the remaining noise causes significant errors when the model is scaled up to match higher-flux images.
+Figure~\ref{img:flat_model_10s} shows the photon transfer curve resulting from this model.
+It is apparent that the model works well for low values, where the points follow the expected square-root dependence.
+However, for larger values, the model breaks down.
+The failure of the model is also evident in the residual histograms (Figures~\ref{img:flat_hist_10s_med} and \ref{img:flat_hist_10s_3rd}), where not only is the shape of the curve incorrect, but the mean estimate is also clearly biased.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -508,18 +503,18 @@ Models failure can also be demonstrated best on residual histograms (images \ref
 \label{img:flat_hist_10s_3rd}
 \end{figure}
 
-It was also attempted to filter out the model as a 1D signal (going from top to bottom across the 512 px, and left to right).
-Since in horizontal direction changes in illumination should be quite smooth as we aren't going across different spectral lines and previous sections shown that deviations between pixels are small.
-However this approach didn't significantly improve the calculation.
+An attempt was also made to filter the model as a 1D signal (smoothing from top to bottom across the 512 pixels).
+Since the illumination changes should be smooth in the vertical direction (parallel to the spectral lines) and previous sections showed that pixel-to-pixel deviations are small, this seemed a viable strategy.
+However, this approach did not significantly improve the calculation.
 
-Due to the failure of the model based on most numerous exposure time an model based on mean of all flat-fields was used.
-This model tackles higher values much better although still is far from perfect as due to datasets nature there are significantly less images for higher exposure times.
-So their noise contribution will be less suppressed and as their values are much higher they will sway the model estimate their way.
+Due to the failure of the model based on the most numerous exposure time, a new model based on the mean of all flat-field frames was used.
+This model handles higher values much better, although it is still imperfect because the dataset contains significantly fewer images at higher exposure times.
+Consequently, the noise contribution from high-flux images is less suppressed, and since their pixel values are much larger, they disproportionately influence the model estimate.
 
-Another step in processing is scaling the model to each flat-field level.
-This isn't particularly complicated as flat-fields energy raises rather linearly with exposure time as seem on picture \ref{img:exposure_time}.
-Only minor departure from the straightforward approach was to filter out pixels that aren't illuminated when finding the scaling coefficient - as those would drag down the model and lead to bad mean estimates.
-In the model itself these inilluminated parts are also zeroed so that after scaling them the values don't rise, same way they don't rise in the real flat-fields for longer exposures.
+The next step in processing is scaling the model to each flat-field level.
+This is straightforward, as the flat-field energy rises linearly with exposure time, as shown in Figure~\ref{img:exposure_time}.
+A minor deviation from the most simple approach was to filter out unilluminated pixels when finding the scaling coefficient, as these would drag down the mean and lead to incorrect estimates.
+In the model itself, these unilluminated regions are also zeroed so that their values do not rise after scaling, mimicking the behavior of real flat-fields at longer exposures.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -528,17 +523,18 @@ In the model itself these inilluminated parts are also zeroed so that after scal
 \caption{Flat-field Levels vs Exposure Time, Different Illuminations}
 \label{img:exposure_time}
 \end{figure}
+% \footnote{Different curves are for different illumination levels.}
+After the model is scaled, residuals are calculated and stored.
+In the following step, stratified sampling is applied to the points.
+This reduces the data count from approximately 12~million to 2~million without introducing measurable error.
+This sampling method splits the measured data into bins according to their signal level and selects a random subset of points from each bin.
+Stratified sampling is necessary because the distribution of data points across signal levels is far from uniform.
 
-After model is scaled residual from it are calculated and stored.
-In following step stratified sampling is applied to the points -- this lowers data count from some $\approx 12$ million to $2$ and doesn't introduce any measurable error.
-This sampling just splits measured data into bins according to their signal level and in each bin takes a random subset of point.
-Stratified sampling is necessary as the distribution of data points between bins is far from uniform.
+Following stratified sampling, outlier rejection using MAD is applied.
+Then, equation (\ref{eq:numer_gain}) is fitted to the cleaned data to calculate the gain, with the read noise fixed to the value determined from the zero frame analysis.
 
-Following startified sampling outlier rejection using MAD is applied.
-Then in the cleaned data equation \ref{eq:numer_gain} is fitten in and the gain is calculated, while read noise is fixed to the value calculated from zero frame analysis.
-
-A gain value of $g =0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$ was estimated using this method.
-This gives a following photon transfer curve \ref{img:model_photon_transfer_curve}.
+A gain value of $g = 0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$ was estimated using this method.
+This yields the photon transfer curve shown in Figure~\ref{img:model_photon_transfer_curve}.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -548,11 +544,13 @@ This gives a following photon transfer curve \ref{img:model_photon_transfer_curv
 \label{img:model_photon_transfer_curve}
 \end{figure}
 
-Still it must be said that the dataset is fundamentally flawed and much denser dataset with more uniform distribution of exposure times might give different results.
-Plot \ref{img:model_local_gain} shows the gain value calculated for each signal level individually.
-A simpler equation of $\sigma^2 = \overline{x}/g + \sigma^2_\mathrm{ro}$ was used combined with low number of data in each bin straight line cannot be even expected, but it's clear that the gain estimation is still problematic.
-This is despite overall good confidence interval the model when overlaying the function across all data.
-For this reason a gain linearity (gain as a function of intensity) wasn't explored at all.
+Still it must be noted that the dataset has fundamental limitations.
+A denser dataset with a more uniform distribution of exposure times might yield different results.
+Figure~\ref{img:model_local_gain} shows the gain value calculated for each signal level individually.
+Using the simpler equation $\sigma^2 = \overline{x}/g + \sigma^2_\mathrm{ro}$ combined with the low number of data points in each bin, a perfectly straight line cannot be expected.
+However, it is clear that the gain estimation remains problematic.
+This persists despite the overall good confidence interval of the global fit.
+For this reason, gain linearity (gain as a function of intensity) was not explored further.
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -564,17 +562,20 @@ For this reason a gain linearity (gain as a function of intensity) wasn't explor
 
 \section{Grating Position and Sensor Resolution}
 
-Last examined parameter of the Coudé spectrograph was to verify if documentation (see \cite{Ondrejov2m}) on relation between of central wavelength on grating orientation and resolution of the spectrograph was correct.
-For this purpose reference spectra of ThAr lamp were taken and compared against atlas of strong spectral lines of Thorium \cite{Palmer1952} and Argon \cite{Norlen19731201}.
-Automating this task proved to be rather complex -- for each frame resolution ($\AA\mathrm{px}^{-1}$) and central wavelength ($\AA$).
-If close to linear relationship between grating angle and central wavelength is to be expected than three variables must hold for each image -- slope ($\AA\mathrm{rad}^{-1}$), intercept point ($\AA$) and resolution ($\AA\mathrm{px}^{-1}$).
+The final parameter of the Coudé spectrograph to be examined was the relationship between the central wavelength, the grating orientation, and the linear dispersion (resolution), in order to verify the accuracy of the existing documentation \cite{Ondrejov2m}.
+For this purpose, reference spectra of a ThAr lamp were acquired and compared against atlases of strong spectral lines for Thorium \cite{Palmer1952} and Argon \cite{Norlen19731201}.
+Automating this task proved to be complex, as it required determining both the linear dispersion ($\AA\mathrm{px}^{-1}$) and the central wavelength ($\AA$) for each frame.
+If a nearly linear relationship between the grating angle and the central wavelength is assumed, then three variables must be determined for the dataset: the slope ($\AA\mathrm{rad}^{-1}$), the intercept ($\AA$), and the linear dispersion ($\AA\mathrm{px}^{-1}$).
 
-Method based on geometric hashing was employed where first triples of peak were found within measured data and then atlas was searched for peak with same relative distances.
-For matches atlas was then scaled and offset (Also convolution with Gaussian function was applied to "spread" the lines a little bit.) and relative energy was calculated based on which parameter estimated was scored.
-However as some spectral lines weren't emitted from the 15~mA ThAr lamp at all and some spectral lines that were captured weren't in the atlas this method failed to find correct match.
+A method based on geometric hashing was employed.
+First, triples of peaks were identified within the measured data, and the atlas was searched for peaks exhibiting the same relative distances.
+For potential matches, the atlas spectrum was scaled and shifted, and a correlation score was calculated based on the signal overlap.
+To make correlation less sensitive to small shifts a convolution with a Gaussian function was run on the reference spectrum.
+However, this method failed to reliably identify the correct matches.
+This was largely because the 15~mA ThAr lamp did not emit some spectral lines present in the atlas, while conversely, some lines captured in the spectra were missing from the atlas.
 
-Lines were then matched manually on selected few pictures and output parameters.
-Those were found to generally correspond with those listed in the documentation -- tables \ref{tab:pos1} and \ref{tab:pos2}
+Consequently, spectral lines were matched manually on a few selected frames to derive the output parameters.
+The results were found to generally correspond with those listed in the documentation, as shown in Tables \ref{tab:pos1} and \ref{tab:pos2}.
 
 \begin{table}[htbp]
 	\caption{The Ranges of Exposed Spectra -- First Order\cite{Ondrejov2m}}
@@ -618,25 +619,20 @@ Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
 \end{center}
 \end{table}
 
-
-
-
-
 \section{Conclusion}
 
-Coudé spectrograph on Perek 2~m telescope exhibits quite good noise parameters and pixels are generally uniform.
-Read noise was measured at 3.62 ADU, and found to follow Gaussian distribution without any anomalies across sensor area.
-Mean dark current was $0.342\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with deviation of $0.321\cdot 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$, thus it shouldn't pose a major problem in long exposure imaging even of relatively faint objects.
-Sensor also exhibited only a small number of hot pixels.
+The Coudé spectrograph mounted on the Perek 2-meter telescope exhibits favorable noise parameters, and the pixel response is generally uniform.
+The read noise was measured at 3.62~ADU and was found to follow a Gaussian distribution without any anomalies across the sensor area.
+The Mean dark current was $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with a standard deviation of $0.342 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$.
+Thus, it should not pose a major problem for long-exposure imaging, even for relatively faint objects.
+The sensor also exhibited only a small number of hot pixels.
 
-Gain calculation proved to be problematic due to nature of the dataset used.
-Simple inter-frame methods didn't yield good results as only about tenth of the CCD range was covered by them.
-Intra-frame methods couldn't work due to nature of spectostrophic images where flat-fields illumination is unequal.
-Lastly attempted was a residual method that estimated the gain at $g =0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$.
-However the model used in it was far from perfect and even with low uncertainty error of this method might be significant.
-
-
-
+The gain calculation proved to be problematic due to the nature of the available dataset.
+Simple inter-frame methods did not yield reliable results, as they covered only about one-tenth of the CCD's dynamic range.
+Intra-frame methods were unsuitable due to the inherent nature of spectroscopic images, where flat-field illumination is non-uniform.
+Finally, a residual analysis method was attempted, estimating the gain at $g = 0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$.
+However, the model employed in this method was imperfect.
+Consequently, despite the low statistical uncertainty, the systematic error of this estimate may be significant.
 
 \section*{Acknowledgment}
 
