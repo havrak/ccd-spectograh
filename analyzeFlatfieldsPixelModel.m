@@ -455,7 +455,7 @@ grid on;
 xlim([-4*theoreticalSigma, 4*theoreticalSigma]);
 
 set(gca, 'FontSize', mainFontSize);
-exportgraphics(f2, fullfile('img', 'model_histogram_med.png'), 'Resolution', 300);
+% exportgraphics(f2, fullfile('img', 'model_histogram_med.png'), 'Resolution', 300);
 
 
 f3 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
@@ -492,31 +492,34 @@ xlim([-4*theoreticalSigma, 4*theoreticalSigma]);
 
 
 set(gca, 'FontSize', mainFontSize);
-exportgraphics(f3, fullfile('img', 'model_histogram_3qar.png'), 'Resolution', 300);
+% exportgraphics(f3, fullfile('img', 'model_histogram_3qar.png'), 'Resolution', 300);
 
 
 f4 = figure('Name', 'Master Bias', 'Color', 'w', 'Units', 'pixels', ...
     'Position', [100 100 figWidth figHeight]);
 colors = lines(length(fibKeys));
-
 hold on;
+
+% 1. Create an array to store the specific handles for the legend
+scatPlots = gobjects(1, length(fibKeys)); 
+
 for f = 1:length(fibKeys)
     % Extract data for this fiber
     fIdx = globalFibreIdx == f;
     fExps = globalExps(fIdx);
     fMeans = globalMeans(fIdx);
-
-    % 1. Plot RAW data as discrete dots (no connecting lines)
-    scatter(fExps, fMeans, 20, colors(f,:), 'filled', 'MarkerFaceAlpha', 0.6);
-
-    % 2. Calculate average mean for each unique exposure time
+    
+    % 2. Assign the output of scatter to the array
+    scatPlots(f) = scatter(fExps, fMeans, 20, colors(f,:), 'filled', 'MarkerFaceAlpha', 0.6);
+    
+    % Calculate average mean for each unique exposure time
     uniExps = unique(fExps);
     avgMeans = zeros(size(uniExps));
     for u = 1:length(uniExps)
         avgMeans(u) = mean(fMeans(fExps == uniExps(u)));
     end
-
-    % 3. Plot the TREND line through the averages
+    
+    % 3. Plot the TREND line (we don't save this handle, so legend ignores it)
     [sExp, sI] = sort(uniExps);
     plot(sExp, avgMeans(sI), '-', 'Color', colors(f,:), 'LineWidth', 1.5);
 end
@@ -524,6 +527,11 @@ end
 xlabel('Exposure Time (s)');
 ylabel('Mean Signal (ADU)');
 title(sprintf('Offset \\approx %.3fs', avgShutterOffset));
+
+% 4. Pass the specific 'scatPlots' handles to the legend function
+legend(scatPlots, ['Intensity A'; 'Intensity B'; 'Intensity C'; 'Intensity D'], ...
+    'Location','northeast');
+
 grid on;
 
 set(gca, 'FontSize', mainFontSize);
@@ -541,7 +549,7 @@ ylim([0, gainVal*2]); % Zoom in relevant area
 legend('Calculated Gain per Bin', 'Global Fit Gain');
 
 set(gca, 'FontSize', mainFontSize);
-exportgraphics(f5, fullfile('img', 'model_instantaneous_gain.png'), 'Resolution', 300);
+% exportgraphics(f5, fullfile('img', 'model_instantaneous_gain.png'), 'Resolution', 300);
 
 % ---------------------------------------------------------
 % RETURN

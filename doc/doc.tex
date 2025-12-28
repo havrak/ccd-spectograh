@@ -14,12 +14,12 @@ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \begin{document}
 
-\title{Measuring Properties of a CCD Spectrograph}
+\title{Characterization of Coudé CCD Spectrograph}
 
 \author{\IEEEauthorblockN{Kryštof Havránek}
 \IEEEauthorblockA{\textit{Course: Space Engineering \the\year} \\
 \textit{Czech Technical University in Prague}\\
-Technicka 2, Prague, Czech Republic \\
+Technická 2, Prague, Czech Republic \\
 havrakry@fel.cvut.cz}
 \and
 \IEEEauthorblockN{Martin Jelínek}
@@ -32,7 +32,7 @@ martin.jelinek@asu.cas.cz}
 \maketitle
 
 \begin{abstract}
-This paper presents an analysis of the parameters of the Coudé CCD 700~mm spectrograph connected to the Perek 2-meter optical telescope at the Ondřejov Observatory.
+This paper presents an analysis of the parameters of the single order Coudé CCD 700~mm spectrograph connected to the Perek 2-meter optical telescope at the Ondřejov Observatory.
 Zero, dark, and flat-field frames were acquired and processed in order to estimate noise parameters, pixel uniformity, and sensor gain.
 \end{abstract}
 
@@ -53,7 +53,7 @@ The Perek 2~m telescope, operated by the Astronomical Institute of the Czech Aca
 The telescope provides a combination of high light-gathering power and mechanical stability, making it well suited for high-resolution spectroscopic observations of relatively faint stars \cite{Ondrejov2m}.
 
 In the Coudé configuration, incoming light is reflected by the primary mirror onto the secondary, which then directs it via flat mirrors to the Coudé focus (see Figure~\ref{fig:layout_telescope}).
-From the telescope, three optical fibers guide the light to two different spectrographs: an echelle spectrograph and a single-order spectrograph with a configurable focal length (referred to as the Coudé spectrograph).
+From the telescope, three optical fibers guide the light to two different spectrographs: an echelle spectrograph and a single-order spectrograph with a configurable focal length, referred to as the Coudé spectrograph.
 Currently only setup for 700~mm focal length is being used a this one is the focus of this paper.
 
 The telescope is equipped with accurate guiding and tracking systems.
@@ -62,7 +62,7 @@ This is essential in order to prevent image drift during long exposures when usi
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{../img/schema_coude.png}
-	\caption{Optical layout of the Perek 2~m Telescope\cite{Ondrejov2m}}
+	\caption{Optical Layout of the Perek 2~m Telescope\cite{Ondrejov2m}}
 \label{fig:layout_telescope}
 \end{figure}
 
@@ -83,7 +83,7 @@ For example, the first spectral order of light with wavelength $\lambda$ will fa
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\columnwidth]{../img/spectral_orders.png}
-\caption{Diffraction orders produced by a grating for multiple wavelengths \cite{tau_hydrogen_2018}}
+	\caption{Diffraction Orders Produced By a Grating for Multiple Wavelengths \cite{tau_hydrogen_2018}}
 \label{img:spectral_orders}
 \end{figure}
 
@@ -103,7 +103,8 @@ The basic components of the spectrograph include an entrance slit or fiber, a co
 \begin{center}
 \begin{tabular}{|c||c|c|}
 \hline
-	 Spectral order & $\lambda_\mathrm{min}$ ($\AA$) & $\lambda_\mathrm{max}$ ($\AA$) \\
+	 Spectral order & $\lambda_\mathrm{min}$ ($\mathrm{\AA}$) & $\lambda_\mathrm{max}$ ($\mathrm{\AA}$) \\
+\hline
 \hline
 	1 & 5100 & 9100 \\
 \hline
@@ -122,7 +123,7 @@ A Schmidt camera is used to minimize distortion of the spectrum towards the edge
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{../img/schema_coude_spec.png}
-	\caption{Optical layout of the Coudé spectrograph\cite{Ondrejov2m}}
+	\caption{Optical Layout of the Coudé Spectrograph\cite{Ondrejov2m}}
 \label{img:layout_spectograph}
 \end{figure}
 
@@ -144,7 +145,7 @@ Then, using a sequence of clocked voltage shifts, the stored charge is transferr
 
 The CCD gain determines the conversion between the number of electrons and the recorded ADU value, expressed in units of electrons per ADU:
 \begin{equation}
-S_{e^-} = g \cdot S_{\text{ADU}},
+	S_{\mathrm{e}^-} = g \cdot S_{\text{ADU}},
 \label{eq:gain_def}
 \end{equation}
 where $g$ is the gain in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ and $S_{\text{ADU}}$ is the recorded signal in ADU.
@@ -288,12 +289,12 @@ Several properties were then analyzed, including dark current characteristics, t
 A threshold for hot pixels was defined as any value exceeding 5 times the standard deviation of the master dark frame, following the method described by \cite{KennedyYoung2020}.
 In individual dark frames, it is difficult to distinguish between high-energy particles impacting the sensor (cosmic rays) and true hot pixels.
 Therefore, this analysis was performed only on the master dark frame, as hot pixels consistently exhibit values significantly higher than the mean in all images.
-Using a threshold of $5\sigma$, 252 hot pixels were identified, comprising 0.024\% of the CCD sensor area.
+Using a threshold of $5\sigma$, 252 hot pixels were identified, comprising 0.024~\% of the CCD sensor area.
 Had a more conservative threshold of $10\sigma$ been used, only 17 pixels would have met the criteria.
 This indicates that the sensor exhibits excellent thermal noise uniformity.
 
 Some of these hot pixels fall within areas illuminated by light from the dispersive grating.
-However, as the majority of pixels (177, or 69.4\%) are isolated and do not form larger clusters.
+However, as the majority of pixels (177, or 69.4~\%) are isolated and do not form larger clusters.
 Thus, their impact on measurements should be negligible.
 The remaining 77 pixels have other hot pixels in their vicinity (verified by performing a 2D convolution with a $5 \times 5$ uniform kernel).
 The largest groups contain up to 10 adjacent pixels, which may indicate small manufacturing defects.
@@ -319,7 +320,7 @@ Shot noise associated with dark current should exhibit a Poisson distribution.
 However, because its variance is quite small, comparable to that of the read noise, it is difficult to accurately separate the two noise sources.
 Although the variance of the read noise (from the master zero) is known, this noise remains present in the dark frames and cannot be easily subtracted.
 
-In order to express dark current in physical units ($e^{-}\mathrm{s}^{-1}$), a gain value of $0.6114~\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in subsequent sections, was used.
+In order to express dark current in physical units ($\mathrm{e}^{-}\mathrm{s}^{-1}$), a gain value of $0.6114~\mathrm{e}^{-}\mathrm{ADU}^{-1}$, estimated in subsequent sections, was used.
 Using this gain, the mean dark current was calculated as $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$ with a standard deviation of $0.342 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}$.
 As we can see $\mu \neq \sigma^2$, which is inconsistent with the expected Poisson statistics, but as stated separation of different noises is difficult.
 The distribution of dark current, overlaid with a Poisson distribution curve for calculated $\sigma$, is shown in Figure~\ref{img:dark_distribution}.
@@ -347,7 +348,7 @@ If we also add influence of other noises (here just read noise $\sigma_\mathrm{r
 	g\cdot \sigma = \sqrt{\overline{x}\cdot g + \sigma_\mathrm{ro}^2}.
 	\label{eq:gain_eq}
 \end{equation}
-Here, $\overline{x}$ represents the mean signal value in ADU, $\sigma$ is its standard deviation in ADU, and $g$ is the gain in $e^-\mathrm{ADU}^{-1}$.
+Here, $\overline{x}$ represents the mean signal value in ADU, $\sigma$ is its standard deviation in ADU, and $g$ is the gain in $\mathrm{e}^-\mathrm{ADU}^{-1}$.
 
 For the purpose of numerical calculation, this equation is often rearranged as:
 \begin{equation}
@@ -376,7 +377,7 @@ While a simple outlier rejection method based on an $\overline{x} \pm n\sigma$ t
 This was necessary because individual bins contained few data points, meaning the standard deviation could be significantly skewed by outliers, leading to ineffective rejection.
 Instead, the Median Absolute Deviation (MAD) was utilized.
 MAD relies on the median, rendering it far less sensitive to outliers, though the basic principle remains similar to classical thresholding.
-Since the mean signal values are sufficiently large for the Central Limit Theorem to apply, the noise distribution approximates a Gaussian \cite{Walpolec2002}.
+Since the mean signal values are sufficiently large for the central limit theorem to apply, the noise distribution approximates a Gaussian \cite{Walpolec2002}.
 Consequently, the standard MAD scaling factor of 1.4826 was maintained, while the cutoff value was determined empirically based on the data histogram.
 
 A major limitation of this approach was that the dataset contained multiple images for the same configuration only at short exposure times (below 10 seconds).
@@ -403,7 +404,7 @@ Since pixel properties are expected to be relatively constant across the sensor,
 Because different wavelengths are dispersed along the X-axis, grouping pixels in this direction would be incorrect.
 But along the Y-axis, the signal corresponds to the spatial profile of the optical fiber -- so a much more gradual change is to be expected.
 However, even in Y direction the illumination is far from constant, not to mention only a small part of sensor is illuminated.
-Still if the gain values calculated using this method were somewhat constant it was thought this method might provide some useful data.
+Still if the gain values calculated using this method was constant for different bin sizes, it was thought it might provide some useful data.
 
 Regardless, as shown in Table~\ref{tab:spatial_flat}, the estimated gain value changes significantly with bin size.
 Furthermore, visualizing the binned data reveals that the expected trend is absent (see Figure~\ref{img:flat_spatial_robust}).
@@ -440,7 +441,7 @@ Furthermore, visualizing the binned data reveals that the expected trend is abse
 \subsection{Residual Flat-field Analysis}
 
 Upon a mentor's suggestion, a residual analysis method for gain estimation was attempted.
-Instead of calculating variance between raw pixel values—whether between two images or within spatial bins—this method first creates a "noise-free" model of the illumination pattern.
+Instead of calculating variance between raw pixel values, whether between two images or within spatial bins, this method first creates a "noise-free" model of the illumination pattern.
 The variance of the residuals (the difference between the observed data and this model) is then calculated.
 The data processing algorithm proceeds in the following steps:
 
@@ -450,7 +451,7 @@ The data processing algorithm proceeds in the following steps:
         \begin{enumerate}[label=\arabic*.]
             \item A model is created from the images in the group. This model is normalized to have a mean value of one.
             \item The model is scaled to match the flux level of each individual image.
-            \item The residual for each pixel is calculated (Image $-$ Scaled Model).
+            \item The residual for each pixel is calculated.
             \item The value of the model is recorded as the signal level for each pixel.
         \end{enumerate}
     \item Stratified sampling is applied to reduce data volume while preserving statistical distribution.
@@ -520,10 +521,9 @@ In the model itself, these unilluminated regions are also zeroed so that their v
 	\begin{center}
 		\includegraphics[width=0.4\textwidth]{../img/exposure_time.png}
 	\end{center}
-\caption{Flat-field Levels vs Exposure Time, Different Illuminations}
+\caption{Flat-field Levels vs Exposure Time}
 \label{img:exposure_time}
 \end{figure}
-% \footnote{Different curves are for different illumination levels.}
 After the model is scaled, residuals are calculated and stored.
 In the following step, stratified sampling is applied to the points.
 This reduces the data count from approximately 12~million to 2~million without introducing measurable error.
@@ -547,7 +547,7 @@ This yields the photon transfer curve shown in Figure~\ref{img:model_photon_tran
 Still it must be noted that the dataset has fundamental limitations.
 A denser dataset with a more uniform distribution of exposure times might yield different results.
 Figure~\ref{img:model_local_gain} shows the gain value calculated for each signal level individually.
-Using the simpler equation $\sigma^2 = \overline{x}/g + \sigma^2_\mathrm{ro}$ combined with the low number of data points in each bin, a perfectly straight line cannot be expected.
+Using a simpler equation $\sigma^2 = \overline{x}/g + \sigma^2_\mathrm{ro}$ combined with the low number of data points in each bin, a perfectly straight line cannot be expected.
 However, it is clear that the gain estimation remains problematic.
 This persists despite the overall good confidence interval of the global fit.
 For this reason, gain linearity (gain as a function of intensity) was not explored further.
@@ -556,7 +556,7 @@ For this reason, gain linearity (gain as a function of intensity) was not explor
 	\begin{center}
 		\includegraphics[width=0.4\textwidth]{../img/model_instantaneous_gain.png}
 	\end{center}
-\caption{Model Local Gain}
+\caption{Local Gain}
 \label{img:model_local_gain}
 \end{figure}
 
@@ -564,8 +564,8 @@ For this reason, gain linearity (gain as a function of intensity) was not explor
 
 The final parameter of the Coudé spectrograph to be examined was the relationship between the central wavelength, the grating orientation, and the linear dispersion (resolution), in order to verify the accuracy of the existing documentation \cite{Ondrejov2m}.
 For this purpose, reference spectra of a ThAr lamp were acquired and compared against atlases of strong spectral lines for Thorium \cite{Palmer1952} and Argon \cite{Norlen19731201}.
-Automating this task proved to be complex, as it required determining both the linear dispersion ($\AA\mathrm{px}^{-1}$) and the central wavelength ($\AA$) for each frame.
-If a nearly linear relationship between the grating angle and the central wavelength is assumed, then three variables must be determined for the dataset: the slope ($\AA\mathrm{rad}^{-1}$), the intercept ($\AA$), and the linear dispersion ($\AA\mathrm{px}^{-1}$).
+Automating this task proved to be complex, as it required determining both the linear dispersion ($\mathrm{\AA}\mathrm{px}^{-1}$) and the central wavelength ($\mathrm{\AA}$) for each frame.
+If a nearly linear relationship between the grating angle and the central wavelength is assumed, then three variables must be determined for the dataset: the slope ($\mathrm{\AA}\mathrm{rad}^{-1}$), the intercept ($\mathrm{\AA}$), and the linear dispersion ($\mathrm{\AA}\mathrm{px}^{-1}$).
 
 A method based on geometric hashing was employed.
 First, triples of peaks were identified within the measured data, and the atlas was searched for peaks exhibiting the same relative distances.
@@ -582,7 +582,7 @@ The results were found to generally correspond with those listed in the document
 \begin{center}
 \begin{tabular}{|c|c||c|c|}
 \hline
-Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
+Grating Increment & Grating Angle (deg) & Min ($\mathrm{\AA}$) & Max ($\mathrm{\AA}$) \\
 \hline
 \hline
 	5321 &  35.78 &  8401.4 &  8869.9 \\
@@ -605,7 +605,7 @@ Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
 \begin{center}
 \begin{tabular}{|c|c||c|c|}
 \hline
-Grating Increment & Grating Angle (deg) & Min ($\AA$) & Max ($\AA$) \\
+Grating Increment & Grating Angle (deg) & Min ($\mathrm{\AA}$) & Max ($\mathrm{\AA}$) \\
 \hline
 \hline
 	4712 & 38.75 & 4758.8 & 4991.1 \\
@@ -636,7 +636,7 @@ Consequently, despite the low statistical uncertainty, the systematic error of t
 
 \section*{Acknowledgment}
 
-The author would like to thank the Astronomical Institute of the Czech Academy of Sciences for providing access to the Ondřejov Observatory facilities and for their support during the measurements.
+The author would like to thank the Astronomical Institute of the Czech Academy of Sciences for providing access to the Ondřejov Observatory facilities and for their support during the data processing.
 
 \bibliographystyle{unsrt}
 \bibliography{bibliography}

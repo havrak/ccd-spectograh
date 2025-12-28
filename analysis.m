@@ -15,5 +15,5 @@ darkResults = analyzeDarks("data/dark/", zeroResults, 0.6114, 1);
 
 
 % testus("data/flatfield_whole/", zeroResults);
-% analyzeFlatfieldsPixelModel("data/flatfield_whole/", zeroResults);
+analyzeFlatfieldsPixelModel("data/flatfield_whole/", zeroResults);
 % analyzeFlatfieldsPixelModel("data/flatfield_one_conf/", zeroResults);
