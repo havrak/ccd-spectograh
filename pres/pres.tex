@@ -1,0 +1,277 @@
+\documentclass[aspectratio=43]{beamer}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{caption}
+
+\usetheme{Berlin}
+\usecolortheme{dolphin}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{footline}{%
+\hfill\textbf{\insertframenumber{}/\inserttotalframenumber} \hspace{0.01cm} \vspace{0.1cm}}
+
+\title{Characterization of Coudé CCD Spectrograph}
+\author{Kryštof Havránek}
+\institute{Czech Technical University in Prague \\ Astronomical Institute of the CAS}
+\date{January 2026}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \maketitle
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview}
+  \tableofcontents
+\end{frame}
+
+% ---------------------------------------------------------
+% 1. INTRODUCTION
+% ---------------------------------------------------------
+\section{Introduction}
+
+\begin{frame}
+  \frametitle{Instrument Overview}
+  \begin{itemize}
+    \item \textbf{Location:} Perek 2-meter telescope, Ondřejov Observatory.
+    \item \textbf{Setup:} Coudé Spectrograph (700 mm focal length).
+    \item \textbf{Detector:} PyLoN eXcelon CCD (E2V 42-10 BX).
+    \item \textbf{Cooling:} Liquid nitrogen ($-115^\circ$C).
+    \item \textbf{Goal:} Characterize noise, uniformity, and gain for data reduction.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Spectrograph Optical Layout}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{../img/schema_coude_spec.png}
+  \end{figure}
+\end{frame}
+
+% ---------------------------------------------------------
+% 2. ZERO FRAMES
+% ---------------------------------------------------------
+\section{Zero Frames}
+
+\begin{frame}
+  \frametitle{Zero (Bias) Frame Analysis}
+  \begin{itemize}
+    \item \textbf{Data:} 15 frames at shortest exposure.
+    \item \textbf{Processing:}
+      \begin{itemize}
+        \item Created Master Bias using Median combination, run basic statistic.
+        \item Purpose: Analyze read noise and remove fixed-pattern noise.
+      \end{itemize}
+    \item \textbf{Statistics:}
+      \begin{itemize}
+        \item Master Mean: 600.15 ADU.
+        \item \textbf{Read Noise:} 3.62 ADU (calculated from stack).
+        \item Fixed Pattern: Negligible ($\sigma \approx 1.18$ ADU in master).
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Read Noise Distribution}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.55\textwidth]{../img/zero_stack_uniformity.png}
+    \caption{Histogram of bias frames follows expected Gaussian distribution.}
+  \end{figure}
+\end{frame}
+
+% ---------------------------------------------------------
+% 3. DARK FRAMES
+% ---------------------------------------------------------
+\section{Dark Frames}
+
+\begin{frame}
+  \frametitle{Dark Frame Analysis}
+  \begin{itemize}
+    \item \textbf{Data:} 4 frames $\times$ 1 hour exposure.
+    \item \textbf{Processing:}
+      \begin{itemize}
+        \item Subtract master zero, run basic statistic.
+        \item Purpose: Analyze dark current noise, map hot pixels.
+      \end{itemize}
+    \item \textbf{Hot Pixels:}
+      \begin{itemize}
+        \item Exhibit high values over mean in all images.
+        \item Threshold: $> 5\sigma$ of master dark.
+        \item Count: 252 pixels (0.024\% of sensor).
+        \item Distribution: Mostly isolated (177 pixels)
+      \end{itemize}
+    \item \textbf{Dark Current:}
+      \begin{itemize}
+        \item Value: $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hot Pixel Map}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{../img/dark_hot_pixels_big.png}
+    \caption{Map of hot pixels (dilated).}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hot Pixel Map}
+\begin{figure}[htbp]
+	\begin{itemize}
+		\item Separation from read noise is impossible due to similar level
+		\item CLV doesn't apply here - Can't model just as Gaussian.
+	\end{itemize}
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{../img/dark_current_distribution.png}
+	\end{center}
+\caption{Dark Current Distribution}
+\end{figure}
+\end{frame}
+
+
+% ---------------------------------------------------------
+% 4. FLAT FIELDS
+% ---------------------------------------------------------
+\section{Flat Fields}
+
+\begin{frame}
+  \frametitle{Gain Calculation: Problem \& Dataset}
+  \begin{itemize}
+    \item \textbf{Dataset Description:}
+      \begin{itemize}
+        \item Source: Ambient illumination in the telescope dome.
+        \item Exposures: Series of frames with varying exposure times (0.1s -- 10s).
+        \item Count: 60+ frames covering whore dynamic range
+      \end{itemize}
+    \item \textbf{Objective:} Calculate Gain ($g$) in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ using:
+      \begin{equation}
+        \sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}.
+        \label{eq:numer_gain}
+      \end{equation}
+    \item \textbf{The Constraint:}
+      \begin{itemize}
+        \item Spectrograph cannot be uniformly illuminated.
+				\item Less data for higher signal values.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Failed Method 1: Inter-frame Analysis}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Method:} Variance between frames of identical exposures.
+        \item \textbf{Result:} Failed due to lack of high-signal data (<6000 ADU), weird effects.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{../img/flat_interframe_robust.png}
+        \caption{PTC showing non-linear trends at low ADU.}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Failed Method 2: Spatial Analysis}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Method:} Calculating variance within small sliding windows (spatial statistics).
+        \item \textbf{Result:} Variance changed drastically with bin size due to fiber profile (non-uniform illumination).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{../img/flat_spatial_robust.png}
+        \caption{Spatial Photon Transfer Curve displaying incoherent variance vs signal.}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Successful Method?: Residual Analysis}
+  \begin{itemize}
+    \item \textbf{Concept:} Compare data against a "noise-free" model.
+    \item \textbf{Workflow:}
+      \begin{enumerate}
+        \item \textbf{Model:} Create mean normalized model from all flats.
+        \item \textbf{Scaling:} Scale model to match flux of each frame.
+        \item \textbf{Residuals:} Calculate $\sigma^2 = Data - Model$.
+        \item \textbf{Rejection:} Median Absolute Deviation (MAD) to remove outliers.
+				\item \textbf{Function fitting:} Fit in mean vs sigma dependence to estimate gain.
+      \end{enumerate}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Residual Method: 10s Model}
+  \begin{itemize}
+    \item \textbf{Approach:} Constructing the model using pictures of a single exposure
+  \end{itemize}
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{../img/model_10s_photon_transfer_curve.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Residual Analysis, 10~s Exposure Model}
+\label{img:flat_model_10s}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Residual Method: 10s Model}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{../img/model_10s_histogram_med.png}
+    \caption{Histogram of residuals using 10s model}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Residual Method: Global Model}
+  \begin{itemize}
+    \item \textbf{Approach:} Constructing the model using \textbf{all} flat frames.
+		\item  Gain $g = 0.6114 \pm 0.0045~\mathrm{e}^{-}\mathrm{ADU}^{-1}$
+  \end{itemize}
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{../img/model_10s_photon_transfer_curve.png}
+	\end{center}
+\caption{Photon Transfer Curve -- Residual Analysis}
+\end{figure}
+\end{frame}
+
+% ---------------------------------------------------------
+% 5. CONCLUSION
+% ---------------------------------------------------------
+\section{Conclusion}
+
+\begin{frame}
+  \frametitle{ThAr \& Conclusion}
+  \begin{itemize}
+    \item \textbf{ThAr Verification:}
+      \begin{itemize}
+        \item Compared lamp spectra against atomic atlases.
+        \item Verified grating resolution matches documentation.
+      \end{itemize}
+    \item \textbf{Final Characterization:}
+      \begin{itemize}
+        \item \textbf{Read Noise:} 3.62 ADU (Low).
+        \item \textbf{Dark Current:} Negligible for standard ops.
+        \item \textbf{Gain:} $\approx 0.61~\mathrm{e}^{-}\mathrm{ADU}^{-1}$.
+      \end{itemize}
+    \item \textbf{Verdict:} System is exhibits low noise, behaves uniformly, gain analysis is trouble due to nature of the dataset.
+  \end{itemize}
+\end{frame}
+
+\end{document}
