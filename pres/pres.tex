@@ -61,10 +61,10 @@
     \item \textbf{Data:} 15 frames at shortest exposure.
     \item \textbf{Processing:}
       \begin{itemize}
-        \item Created Master Bias using Median combination, run basic statistic.
-        \item Purpose: Analyze read noise and remove fixed-pattern noise.
+        \item Created master zero frame using median combination, run basic statistic.
+				\item Purpose: Analyze read noise, fixed-pattern.
       \end{itemize}
-    \item \textbf{Statistics:}
+		\item \textbf{Statistics:}
       \begin{itemize}
         \item Master Mean: 600.15 ADU.
         \item \textbf{Read Noise:} 3.62 ADU (calculated from stack).
@@ -124,7 +124,7 @@
 \begin{figure}[htbp]
 	\begin{itemize}
 		\item Separation from read noise is impossible due to similar level
-		\item CLV doesn't apply here - Can't model just as Gaussian.
+		\item CLT doesn't apply here - Can't model just as Gaussian.
 	\end{itemize}
 	\begin{center}
 		\includegraphics[width=0.5\textwidth]{../img/dark_current_distribution.png}
