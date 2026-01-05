@@ -59,11 +59,8 @@
   \frametitle{Zero (Bias) Frame Analysis}
   \begin{itemize}
     \item \textbf{Data:} 15 frames at shortest exposure.
-    \item \textbf{Processing:}
-      \begin{itemize}
-        \item Created master zero frame using median combination, run basic statistic.
-				\item Purpose: Analyze read noise, fixed-pattern.
-      \end{itemize}
+    \item \textbf{Processing:} Created master zero frame using median combination, run basic statistic.
+		\item \textbf{Objective:} Analyze read noise, fixed-pattern.
 		\item \textbf{Statistics:}
       \begin{itemize}
         \item Master Mean: 600.15 ADU.
@@ -91,10 +88,12 @@
   \frametitle{Dark Frame Analysis}
   \begin{itemize}
     \item \textbf{Data:} 4 frames $\times$ 1 hour exposure.
-    \item \textbf{Processing:}
+    \item \textbf{Processing:} Subtract master zero, run basic statistic.
+		\item \textbf{Objective:} Analyze dark current noise, map hot pixels.
+    \item \textbf{Dark Current:}
       \begin{itemize}
-        \item Subtract master zero, run basic statistic.
-        \item Purpose: Analyze dark current noise, map hot pixels.
+        \item Value: $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$.
+				\item Noise at 1 hour comparable to read noise
       \end{itemize}
     \item \textbf{Hot Pixels:}
       \begin{itemize}
@@ -103,10 +102,6 @@
         \item Count: 252 pixels (0.024\% of sensor).
         \item Distribution: Mostly isolated (177 pixels)
       \end{itemize}
-    \item \textbf{Dark Current:}
-      \begin{itemize}
-        \item Value: $0.255 \times 10^{-3}~\mathrm{e}^{-}\mathrm{s}^{-1}\mathrm{px}^{-1}$.
-      \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -114,13 +109,13 @@
   \frametitle{Hot Pixel Map}
   \begin{figure}
     \centering
-    \includegraphics[width=0.7\textwidth]{../img/dark_hot_pixels_big.png}
+    \includegraphics[width=0.8\textwidth]{../img/dark_hot_pixels_big.png}
     \caption{Map of hot pixels (dilated).}
   \end{figure}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Hot Pixel Map}
+  \frametitle{Dark Current Distribution}
 \begin{figure}[htbp]
 	\begin{itemize}
 		\item Separation from read noise is impossible due to similar level
@@ -142,13 +137,13 @@
 \begin{frame}
   \frametitle{Gain Calculation: Problem \& Dataset}
   \begin{itemize}
-    \item \textbf{Dataset Description:}
+    \item \textbf{Dataset:}
       \begin{itemize}
         \item Source: Ambient illumination in the telescope dome.
-        \item Exposures: Series of frames with varying exposure times (0.1s -- 10s).
+        \item Exposures: Series of frames with varying exposure times.
         \item Count: 60+ frames covering whore dynamic range
       \end{itemize}
-    \item \textbf{Objective:} Calculate Gain ($g$) in $\mathrm{e}^{-}\mathrm{ADU}^{-1}$ using:
+    \item \textbf{Processing:} Shot noise analysis -- calculating gain using:
       \begin{equation}
         \sigma^2 = \frac{\overline{x}}{g} + \frac{\sigma_\mathrm{ro}^2}{g^2}.
         \label{eq:numer_gain}
@@ -167,7 +162,7 @@
     \begin{column}{0.5\textwidth}
       \begin{itemize}
         \item \textbf{Method:} Variance between frames of identical exposures.
-        \item \textbf{Result:} Failed due to lack of high-signal data (<6000 ADU), weird effects.
+				\item \textbf{Result:} Failed due to lack of high-signal data ($< 6000~\mathrm{ADU}$).
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -193,7 +188,7 @@
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{../img/flat_spatial_robust.png}
-        \caption{Spatial Photon Transfer Curve displaying incoherent variance vs signal.}
+        \caption{Spatial Photon Transfer Curve, incoherent variance vs signal.}
       \end{figure}
     \end{column}
   \end{columns}
@@ -208,6 +203,7 @@
         \item \textbf{Model:} Create mean normalized model from all flats.
         \item \textbf{Scaling:} Scale model to match flux of each frame.
         \item \textbf{Residuals:} Calculate $\sigma^2 = Data - Model$.
+				\item \textbf{Stratified Sampling}: Sample randomly within level bins.
         \item \textbf{Rejection:} Median Absolute Deviation (MAD) to remove outliers.
 				\item \textbf{Function fitting:} Fit in mean vs sigma dependence to estimate gain.
       \end{enumerate}
@@ -245,7 +241,7 @@
   \end{itemize}
 \begin{figure}[htbp]
 	\begin{center}
-		\includegraphics[width=0.5\textwidth]{../img/model_10s_photon_transfer_curve.png}
+		\includegraphics[width=0.5\textwidth]{../img/model_photon_transfer_curve.png}
 	\end{center}
 \caption{Photon Transfer Curve -- Residual Analysis}
 \end{figure}

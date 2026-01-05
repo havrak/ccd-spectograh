@@ -10,4 +10,5 @@ _minted
 *.out
 *.toc
 *.mmz
+memoize.memo.dir
 
